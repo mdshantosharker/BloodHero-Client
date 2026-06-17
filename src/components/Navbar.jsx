@@ -3,17 +3,11 @@
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 
-import {
-  HeartPulse,
-  User,
-  ChevronDown,
-  LogOut,
-  LayoutDashboard,
-} from "lucide-react";
+import { HeartPulse, ChevronDown, LogOut, LayoutDashboard } from "lucide-react";
 
 import { authClient, useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { Avatar } from "@heroui/react";
+import { Avatar, toast } from "@heroui/react";
 
 export default function Navbar() {
   const router = useRouter();
@@ -42,6 +36,7 @@ export default function Navbar() {
       fetchOptions: {
         onSuccess: () => {
           router.push("/login");
+          toast.success(user?.name + " Successfully LogOUt");
         },
       },
     });
@@ -98,7 +93,7 @@ export default function Navbar() {
             {open && (
               <div className="absolute right-0 mt-3 w-52 bg-white rounded-2xl shadow-xl border p-2">
                 <Link
-                  href="/dashboard"
+                  href={`/dashboard/${user?.role}`}
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-50"
                 >
@@ -108,7 +103,7 @@ export default function Navbar() {
 
                 <button
                   onClick={logout}
-                  className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-50 text-left"
+                  className="w-full cursor-pointer flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-50 text-left"
                 >
                   <LogOut size={18} />
                   Logout

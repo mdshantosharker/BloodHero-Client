@@ -3,12 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { HeartPulse, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
+import { authClient, useSession } from "@/lib/auth-client";
 import { toast } from "@heroui/react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { data: session } = useSession();
+  const user = session?.user;
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -43,7 +45,7 @@ export default function LoginPage() {
 
     if (data) {
       toast.success("Login Successfully");
-      router.push("/");
+      router.push(`/dashboard/${user?.role}`);
     }
 
     if (error) {
