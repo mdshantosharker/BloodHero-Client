@@ -3,8 +3,6 @@ import { Mail, Phone, MapPin } from "lucide-react";
 export default function Contact() {
   return (
     <section className="max-w-7xl mx-auto px-5 py-20">
-      {/* Title */}
-
       <div className="text-center mb-12">
         <p className="text-red-500 font-semibold">Contact Us</p>
 
@@ -18,8 +16,6 @@ export default function Contact() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-10">
-        {/* Form */}
-
         <div className="bg-white rounded-2xl shadow-lg border p-8">
           <h3 className="text-2xl font-semibold mb-6">Send Message</h3>
 
@@ -59,11 +55,9 @@ export default function Contact() {
           </form>
         </div>
 
-        {/* Contact Info */}
-
         <div
           className="
-        bg-gradient-to-br 
+        bg-linear-to-br 
         from-red-600 
         to-red-800
         rounded-2xl
