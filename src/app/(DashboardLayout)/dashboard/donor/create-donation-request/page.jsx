@@ -92,7 +92,7 @@ export default function CreateDonationRequest() {
       <div className="max-w-6xl mx-auto bg-white rounded-[30px] shadow-xl overflow-hidden">
         {/* header */}
 
-        <div className="bg-gradient-to-r from-red-500 to-rose-600 p-6 sm:p-10 text-white">
+        <div className="bg-linear-to-r from-red-500 to-rose-600 p-6 sm:p-10 text-white">
           <div className="flex flex-col sm:flex-row items-center gap-5">
             <div className="w-20 h-20 rounded-3xl bg-white/20 flex items-center justify-center">
               <HeartPulse size={45} />
@@ -194,7 +194,7 @@ export default function CreateDonationRequest() {
             lg:col-span-2
             py-4
             rounded-2xl
-            bg-gradient-to-r
+            bg-linear-to-r
             from-red-500
             to-rose-600
             text-white
