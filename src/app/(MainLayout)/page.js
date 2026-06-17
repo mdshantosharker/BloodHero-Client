@@ -1,6 +1,6 @@
-import Banner from "@/components/Banner";
-import Contact from "@/components/Contact";
-import Featured from "@/components/Featured";
+import Banner from "@/components/Home/Banner";
+import Contact from "@/components/Home/Contact";
+import Featured from "@/components/Home/Featured";
 
 export default function Home() {
   return (

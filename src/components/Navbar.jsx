@@ -11,17 +11,20 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 
+import { authClient, useSession } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { Avatar } from "@heroui/react";
+
 export default function Navbar() {
+  const router = useRouter();
+  const { data: session } = useSession();
+
   const [open, setOpen] = useState(false);
 
   const dropdownRef = useRef(null);
 
-  const user = {
-    name: "Shanto",
-    email: "shanto@gmail.com",
-  };
+  const user = session?.user;
 
-  // outside click close dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -31,14 +34,17 @@ export default function Navbar() {
 
     document.addEventListener("mousedown", handleClickOutside);
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const logout = () => {
-    alert("logout");
-    setOpen(false);
+  const logout = async () => {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/login");
+        },
+      },
+    });
   };
 
   return (
@@ -46,8 +52,8 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
         {/* Logo */}
 
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-11 h-11 rounded-full bg-red-500 flex items-center justify-center text-white shadow">
+        <Link href="/" className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-full bg-red-500 flex items-center justify-center text-white shadow-md">
             <HeartPulse size={25} />
           </div>
 
@@ -57,8 +63,6 @@ export default function Navbar() {
             <p className="text-xs text-gray-500">Donate • Save Life</p>
           </div>
         </Link>
-
-        {/* Links */}
 
         <div className="hidden md:flex gap-8 font-medium">
           <Link
@@ -75,17 +79,16 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Right Side */}
-
         {user ? (
           <div ref={dropdownRef} className="relative">
             <button
               onClick={() => setOpen(!open)}
               className="flex items-center gap-2"
             >
-              <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
-                <User size={22} />
-              </div>
+              <Avatar>
+                <Avatar.Image alt={user?.image} src={user?.image} />
+                <Avatar.Fallback>{user?.name}</Avatar.Fallback>
+              </Avatar>
 
               <span className="hidden sm:block font-medium">{user.name}</span>
 
@@ -93,11 +96,11 @@ export default function Navbar() {
             </button>
 
             {open && (
-              <div className="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-lg border p-2">
+              <div className="absolute right-0 mt-3 w-52 bg-white rounded-2xl shadow-xl border p-2">
                 <Link
                   href="/dashboard"
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-50"
+                  className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-50"
                 >
                   <LayoutDashboard size={18} />
                   Dashboard
@@ -105,7 +108,7 @@ export default function Navbar() {
 
                 <button
                   onClick={logout}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-50 text-left"
+                  className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-50 text-left"
                 >
                   <LogOut size={18} />
                   Logout
@@ -114,9 +117,21 @@ export default function Navbar() {
             )}
           </div>
         ) : (
-          <button className="px-5 py-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition">
-            Login
-          </button>
+          <div className="flex gap-3">
+            <Link
+              href="/login"
+              className="px-5 py-2.5 rounded-full border border-red-500 text-red-500 font-semibold hover:bg-red-500 hover:text-white transition"
+            >
+              Login
+            </Link>
+
+            <Link
+              href="/registration"
+              className="px-5 py-2.5 rounded-full bg-red-500 text-white font-semibold hover:bg-red-600 shadow-md transition"
+            >
+              Registration
+            </Link>
+          </div>
         )}
       </div>
     </nav>
