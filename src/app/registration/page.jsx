@@ -14,8 +14,10 @@ import {
 import { UploadImage } from "@/utils/UploadImage";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "@heroui/react";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [avatar, setAvatar] = useState(null);
   const [preview, setPreview] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
@@ -106,6 +108,7 @@ export default function RegisterPage() {
     });
     if (data) {
       toast.success("Registration Successfully");
+      router.push("/");
     }
     if (error) {
       toast.warning(error.message);
