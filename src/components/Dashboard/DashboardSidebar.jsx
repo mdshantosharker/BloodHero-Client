@@ -88,7 +88,6 @@ const DashboardSidebar = () => {
 
   return (
     <aside className="w-80 bg-white rounded-3xl shadow-xl border border-red-100 flex flex-col overflow-hidden">
-      
       <div className="p-6 border-b border-red-100">
         <Link href="/" className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-red-500 text-white flex items-center justify-center shadow-lg">
@@ -110,10 +109,7 @@ const DashboardSidebar = () => {
         <div className="bg-linear-to-r from-red-500 to-red-600 rounded-3xl p-5 text-white shadow-lg">
           <div className="flex justify-center">
             <img
-              src={
-                user?.image ||
-                "https://i.ibb.co/0jQ8z2P/user-placeholder.png"
-              }
+              src={user?.image}
               alt={user?.name}
               className="w-20 h-20 rounded-full border-4 border-white object-cover"
             />
@@ -122,14 +118,11 @@ const DashboardSidebar = () => {
           <div className="text-center mt-4">
             <h3 className="font-bold text-lg">{user?.name}</h3>
 
-            <p className="text-red-100 text-sm break-all">
-              {user?.email}
-            </p>
+            <p className="text-red-100 text-sm break-all">{user?.email}</p>
           </div>
         </div>
       </div>
 
-     
       <nav className="flex-1 px-4 overflow-y-auto">
         <div className="space-y-2">
           {dashboardItems[user?.role]?.map((item) => {
@@ -154,7 +147,6 @@ const DashboardSidebar = () => {
             );
           })}
 
-        
           <Link
             href="/dashboard/profile"
             className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200

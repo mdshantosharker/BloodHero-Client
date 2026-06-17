@@ -1,0 +1,368 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+
+import {
+  Eye,
+  Edit,
+  Trash2,
+  CalendarDays,
+  Clock,
+  MapPin,
+  Filter,
+  HeartPulse,
+} from "lucide-react";
+
+export default function MyDonationRequestsPage() {
+  const [filter, setFilter] = useState("all");
+
+  const [page, setPage] = useState(1);
+
+  const requests = [
+    {
+      _id: "1",
+      recipientName: "Rahim",
+      district: "Dhaka",
+      upazila: "Mirpur",
+      date: "2026-06-20",
+      time: "10:30 AM",
+      bloodGroup: "A+",
+      status: "pending",
+    },
+
+    {
+      _id: "2",
+      recipientName: "Karim",
+      district: "Gazipur",
+      upazila: "Tongi",
+      date: "2026-06-22",
+      time: "2:00 PM",
+      bloodGroup: "B+",
+      status: "inprogress",
+    },
+
+    {
+      _id: "3",
+      recipientName: "Sadia",
+      district: "Sylhet",
+      upazila: "Sadar",
+      date: "2026-06-25",
+      time: "9:00 AM",
+      bloodGroup: "O+",
+      status: "done",
+    },
+
+    {
+      _id: "4",
+      recipientName: "Nila",
+      district: "Rajshahi",
+      upazila: "Boalia",
+      date: "2026-06-28",
+      time: "4:00 PM",
+      bloodGroup: "AB+",
+      status: "canceled",
+    },
+  ];
+
+  const filteredRequests =
+    filter === "all"
+      ? requests
+      : requests.filter((item) => item.status === filter);
+
+  const perPage = 3;
+
+  const totalPage = Math.ceil(filteredRequests.length / perPage);
+
+  const currentData = filteredRequests.slice(
+    (page - 1) * perPage,
+    page * perPage,
+  );
+
+  const deleteRequest = (id) => {
+    if (window.confirm("Delete this request?")) {
+      console.log(id);
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+
+      <div
+        className="
+bg-linear-to-r
+from-red-500
+to-red-600
+rounded-3xl
+p-6
+md:p-8
+text-white
+shadow-xl
+"
+      >
+        <div className="flex gap-4 items-center">
+          <div
+            className="
+w-16
+h-16
+rounded-2xl
+bg-white/20
+flex
+items-center
+justify-center
+"
+          >
+            <HeartPulse size={35} />
+          </div>
+
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold">
+              My Donation Requests 🩸
+            </h1>
+
+            <p className="text-red-100">Manage all your blood requests</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter */}
+
+      <div
+        className="
+bg-white
+rounded-3xl
+shadow-lg
+border
+p-5
+flex
+flex-wrap
+gap-3
+items-center
+"
+      >
+        <Filter className="text-red-500" />
+
+        {["all", "pending", "inprogress", "done", "canceled"].map((item) => (
+          <button
+            key={item}
+            onClick={() => {
+              setFilter(item);
+              setPage(1);
+            }}
+            className={`
+px-5 py-2
+rounded-full
+capitalize
+transition
+
+${filter === item ? "bg-red-500 text-white" : "bg-red-50 text-red-600"}
+
+`}
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+
+      {/* Table */}
+
+      <div
+        className="
+bg-white
+rounded-3xl
+shadow-lg
+border
+p-5
+"
+      >
+        <div className="overflow-x-auto">
+          <table
+            className="
+min-w-237.5
+w-full
+"
+          >
+            <thead>
+              <tr
+                className="
+border-b
+text-left
+text-gray-500
+"
+              >
+                <th className="p-3">Recipient</th>
+
+                <th className="p-3">Location</th>
+
+                <th className="p-3">Date</th>
+
+                <th className="p-3">Blood</th>
+
+                <th className="p-3">Status</th>
+
+                <th className="p-3">Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {currentData.map((item) => (
+                <tr
+                  key={item._id}
+                  className="
+border-b
+hover:bg-red-50
+transition
+"
+                >
+                  <td className="p-3 font-semibold">{item.recipientName}</td>
+
+                  <td className="p-3">
+                    <div className="flex gap-1 items-center">
+                      <MapPin size={15} />
+                      {item.district}, {item.upazila}
+                    </div>
+                  </td>
+
+                  <td className="p-3">
+                    <div className="text-sm">
+                      <div className="flex gap-1">
+                        <CalendarDays size={14} />
+
+                        {item.date}
+                      </div>
+
+                      <div className="flex gap-1">
+                        <Clock size={14} />
+
+                        {item.time}
+                      </div>
+                    </div>
+                  </td>
+
+                  <td>
+                    <span
+                      className="
+bg-red-100
+text-red-600
+px-3
+py-1
+rounded-full
+font-bold
+"
+                    >
+                      {item.bloodGroup}
+                    </span>
+                  </td>
+
+                  <td>
+                    <span
+                      className={`
+px-3
+py-1
+rounded-full
+capitalize
+text-sm
+
+${
+  item.status === "pending"
+    ? "bg-yellow-100 text-yellow-700"
+    : item.status === "inprogress"
+      ? "bg-blue-100 text-blue-700"
+      : item.status === "done"
+        ? "bg-green-100 text-green-700"
+        : "bg-gray-100 text-gray-700"
+}
+
+`}
+                    >
+                      {item.status}
+                    </span>
+                  </td>
+
+                  <td>
+                    <div className="flex gap-2">
+                      <Link
+                        href={`/dashboard/donor/view/${item._id}`}
+                        className="
+p-2
+rounded-lg
+bg-blue-100
+text-blue-600
+"
+                      >
+                        <Eye size={17} />
+                      </Link>
+
+                      <Link
+                        href={`/dashboard/donor/edit/${item._id}`}
+                        className="
+p-2
+rounded-lg
+bg-yellow-100
+text-yellow-600
+"
+                      >
+                        <Edit size={17} />
+                      </Link>
+
+                      <button
+                        onClick={() => deleteRequest(item._id)}
+                        className="
+p-2
+rounded-lg
+bg-red-100
+text-red-600
+"
+                      >
+                        <Trash2 size={17} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Empty */}
+
+        {currentData.length === 0 && (
+          <div className="text-center py-10 text-gray-400">
+            No Donation Request Found
+          </div>
+        )}
+
+        {/* Pagination */}
+
+        {totalPage > 1 && (
+          <div
+            className="
+flex
+justify-center
+gap-3
+mt-6
+"
+          >
+            {Array.from({ length: totalPage }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setPage(i + 1)}
+                className={`
+
+w-10 h-10
+rounded-full
+
+${page === i + 1 ? "bg-red-500 text-white" : "bg-red-100 text-red-600"}
+
+`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
