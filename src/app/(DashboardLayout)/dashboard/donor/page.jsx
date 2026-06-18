@@ -1,266 +1,333 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  HeartPulse,
-  CalendarDays,
-  Clock,
-  MapPin,
   Eye,
   Edit,
   Trash2,
+  Clock,
+  MapPin,
+  HeartPulse,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  ArrowRight,
 } from "lucide-react";
 
 import { useSession } from "@/lib/auth-client";
-import { useState } from "react";
+import { getAllRequest } from "@/lib/api/donor/server";
+import { deleteMyRequests, doneRequest } from "@/lib/api/donor/action";
 
-export default function DonorDashboard() {
-  const { data: session, isPending } = useSession();
+import { toast } from "@heroui/react";
+import { useRouter } from "next/navigation";
 
-  const [mounted, setMounted] = useState(false);
-
-  if (typeof window !== "undefined" && !mounted) {
-    setMounted(true);
-  }
-
-  if (!mounted || isPending) {
-    return (
-      <div className="min-h-100 flex items-center justify-center">
-        <div className="animate-spin w-10 h-10 border-4 border-red-500 border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-
+export default function DashboardHomePage() {
+  const router = useRouter();
+  const { data: session } = useSession();
   const user = session?.user;
 
-  const donationRequests = [
-    {
-      _id: "1",
-      recipientName: "Rahim",
-      district: "Dhaka",
-      upazila: "Mirpur",
-      date: "2026-06-20",
-      time: "10:30 AM",
-      bloodGroup: "A+",
-      status: "inprogress",
-    },
-    {
-      _id: "2",
-      recipientName: "Karim",
-      district: "Gazipur",
-      upazila: "Tongi",
-      date: "2026-06-22",
-      time: "2:00 PM",
-      bloodGroup: "B+",
-      status: "pending",
-    },
-  ];
+  const [requests, setRequests] = useState([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [requestToDelete, setRequestToDelete] = useState(null);
 
-  const recentRequests = donationRequests.slice(0, 3);
+  const fetchRequests = async () => {
+    if (!user?.email) return;
+    const data = await getAllRequest(user.email);
+    setRequests(data || []);
+  };
 
-  const deleteRequest = (id) => {
-    if (window.confirm("Delete this request?")) {
-      console.log(id);
-    }
+  useEffect(() => {
+    fetchRequests();
+  }, [user?.email]);
+
+  const recentRequests = requests.slice(0, 3);
+
+  const openDeleteModal = (item) => {
+    setRequestToDelete(item);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!requestToDelete) return;
+
+    toast.promise(deleteMyRequests(requestToDelete._id), {
+      loading: "Deleting request...",
+      success: () => {
+        setIsDeleteModalOpen(false);
+        setRequestToDelete(null);
+        fetchRequests();
+        return `Successfully deleted request for ${requestToDelete.recipientName}!`;
+      },
+      error: "Failed to delete request. Try again.",
+    });
+  };
+
+  const handleMarkAsDone = async (id) => {
+    const res = await doneRequest(
+      {
+        status: "done",
+      },
+      id,
+    );
+    console.log(res);
+    router.refresh();
+    toast.success("Request successfully marked as Done! 🎉");
+
+    // setRequests((prev) =>
+    //   prev.map((item) =>
+    //     item._id === id ? { ...item, status: "done" } : item,
+    //   ),
+    // );
   };
 
   return (
     <div className="space-y-8">
-      <div
-        className="
-bg-linear-to-r
-from-red-500
-to-red-600
-rounded-3xl
-p-6
-md:p-8
-text-white
-shadow-xl
-"
-      >
+      <div className="bg-linear-to-r from-red-500 to-red-600 rounded-3xl p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex gap-4 items-center">
-          <div
-            className="
-w-14 h-14
-rounded-2xl
-bg-white/20
-flex
-items-center
-justify-center
-"
-          >
-            <HeartPulse size={32} />
+          <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-2xl">
+            🏠
           </div>
-
           <div>
-            <h1 className="text-xl md:text-3xl font-bold">
-              Welcome, {user?.name} 👋
+            <h1 className="text-2xl md:text-3xl font-bold">
+              Welcome Back, {user?.name || "Donor"}! 👋
             </h1>
-
-            <p className="text-red-100">Thank you for saving lives</p>
+            <p className="text-red-100 mt-1">
+              Ready to save lives today? Monitor your activities here.
+            </p>
           </div>
         </div>
       </div>
 
       {recentRequests.length > 0 && (
-        <div
-          className="
-bg-white
-rounded-3xl
-border
-shadow-lg
-p-4 md:p-6
-"
-        >
-          <h2
-            className="
-text-xl
-font-bold
-mb-5
-"
-          >
-            Recent Donation Requests
-          </h2>
-
-          <div className="overflow-x-auto">
-            <table className="min-w-225 w-full">
-              <thead>
-                <tr
-                  className="
-border-b
-text-gray-500
-text-left
-"
-                >
-                  <th className="p-3">Recipient</th>
-                  <th className="p-3">Location</th>
-                  <th className="p-3">Date</th>
-                  <th className="p-3">Blood</th>
-                  <th className="p-3">Status</th>
-                  <th className="p-3">Action</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {recentRequests.map((item) => (
-                  <tr
-                    key={item._id}
-                    className="
-border-b
-hover:bg-red-50
-transition
-"
-                  >
-                    <td className="p-3 font-semibold">{item.recipientName}</td>
-
-                    <td className="p-3">
-                      <div className="flex items-center gap-1">
-                        <MapPin size={15} />
-                        {item.district}, {item.upazila}
-                      </div>
-                    </td>
-
-                    <td className="p-3">
-                      <div className="text-sm">
-                        <div className="flex gap-1">
-                          <CalendarDays size={14} />
-
-                          {item.date}
-                        </div>
-
-                        <div className="flex gap-1">
-                          <Clock size={14} />
-
-                          {item.time}
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="p-3">
-                      <span
-                        className="
-bg-red-100
-text-red-600
-px-3
-py-1
-rounded-full
-font-bold
-"
-                      >
-                        {item.bloodGroup}
-                      </span>
-                    </td>
-
-                    <td className="p-3">
-                      <span
-                        className={`
-px-3 py-1 rounded-full text-sm
-${
-  item.status === "pending"
-    ? "bg-yellow-100 text-yellow-700"
-    : item.status === "done"
-      ? "bg-green-100 text-green-700"
-      : item.status === "canceled"
-        ? "bg-gray-100 text-gray-700"
-        : "bg-blue-100 text-blue-700"
-}
-`}
-                      >
-                        {item.status}
-                      </span>
-                    </td>
-
-                    <td className="p-3">
-                      <div className="flex gap-2">
-                        <Link
-                          href={`/dashboard/donor/view/${item._id}`}
-                          className="p-2 bg-blue-100 rounded-lg text-blue-600"
-                        >
-                          <Eye size={17} />
-                        </Link>
-
-                        <Link
-                          href={`/dashboard/donor/edit/${item._id}`}
-                          className="p-2 bg-yellow-100 rounded-lg text-yellow-600"
-                        >
-                          <Edit size={17} />
-                        </Link>
-
-                        <button
-                          onClick={() => deleteRequest(item._id)}
-                          className="
-p-2
-bg-red-100
-rounded-lg
-text-red-600
-"
-                        >
-                          <Trash2 size={17} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="space-y-4">
+          <div className="flex justify-between items-center px-2">
+            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+              <HeartPulse className="text-red-500" size={22} />
+              Recent Donation Requests
+            </h2>
+            <span className="text-xs bg-red-50 text-red-600 px-3 py-1 rounded-full font-semibold">
+              Showing max 3 requests
+            </span>
           </div>
 
-          <div className="text-center mt-6">
-            <Link
-              href="/dashboard/donor/my-donation-requests"
-              className="
-inline-block
-bg-red-500
-text-white
-px-7
-py-3
-rounded-full
-hover:bg-red-600
-transition
-"
-            >
-              View My All Requests
-            </Link>
+          <div className="bg-white rounded-3xl shadow-lg border p-5">
+            <div className="overflow-x-auto">
+              <table className="min-w-200 w-full">
+                <thead>
+                  <tr className="border-b text-left text-gray-500 text-sm">
+                    <th className="p-3">Recipient</th>
+                    <th className="p-3">Location (Upazila, District)</th>
+                    <th className="p-3">Date & Time</th>
+                    <th className="p-3">Blood Group</th>
+                    <th className="p-3">Status</th>
+                    <th className="p-3 text-center">Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {recentRequests.map((item) => (
+                    <tr
+                      key={item._id}
+                      className="border-b hover:bg-red-50/50 transition"
+                    >
+                      <td className="p-3 font-semibold text-gray-900">
+                        {item.recipientName}
+                      </td>
+
+                      <td className="p-3">
+                        <div className="flex gap-1 items-center text-gray-600 text-sm">
+                          <MapPin size={15} className="text-gray-400" />
+                          <span className="capitalize">
+                            {item.recipientUpazila
+                              ? `${item.recipientUpazila}, `
+                              : ""}
+                            {item.recipientDistrict || item.address}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="p-3 text-sm text-gray-600">
+                        <div className="flex items-center gap-1.5">
+                          <Clock size={14} className="text-gray-400" />
+                          <span>
+                            {item.donationDate || "Today"} | {item.donationTime}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="p-3">
+                        <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full font-bold text-sm">
+                          {item.bloodGroup}
+                        </span>
+                      </td>
+
+                      <td className="p-3">
+                        <div className="flex flex-col gap-2 items-start">
+                          <span
+                            className={`px-3 py-0.5 rounded-full capitalize text-xs font-medium ${
+                              item.status === "pending"
+                                ? "bg-yellow-100 text-yellow-700"
+                                : item.status === "inprogress"
+                                  ? "bg-blue-100 text-blue-700"
+                                  : item.status === "done"
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-gray-100 text-gray-700"
+                            }`}
+                          >
+                            {item.status}
+                          </span>
+
+                          {item.status === "inprogress" && (
+                            <div className="flex gap-1.5 mt-1">
+                              <button
+                                onClick={() => handleMarkAsDone(item._id)}
+                                className="flex items-center gap-1 text-[11px] bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-md transition cursor-pointer font-medium"
+                              >
+                                <CheckCircle size={12} /> Done
+                              </button>
+
+                              <button
+                                onClick={() => openDeleteModal(item)}
+                                className="flex items-center gap-1 text-[11px] bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-md transition cursor-pointer font-medium"
+                              >
+                                <XCircle size={12} /> Cancel
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+
+                      <td className="p-3 text-center">
+                        <div className="flex gap-2 justify-center">
+                          {/* View */}
+                          <Link
+                            href={`/dashboard/donor/view/${item._id}`}
+                            className="p-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition"
+                          >
+                            <Eye size={16} />
+                          </Link>
+
+                          {item.status === "pending" ? (
+                            <Link
+                              href={`/dashboard/donor/edit/${item._id}`}
+                              className="p-2 rounded-lg bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition"
+                            >
+                              <Edit size={16} />
+                            </Link>
+                          ) : (
+                            <button
+                              disabled
+                              title="Only pending requests can be edited"
+                              className="p-2 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed opacity-60"
+                            >
+                              <Edit size={16} />
+                            </button>
+                          )}
+
+                          {item.status === "pending" ||
+                          item.status === "inprogress" ? (
+                            <button
+                              onClick={() => openDeleteModal(item)}
+                              className="p-2 cursor-pointer rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition"
+                              title={
+                                item.status === "inprogress"
+                                  ? "Cancel & Delete Request"
+                                  : "Delete Request"
+                              }
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          ) : (
+                            <button
+                              disabled
+                              title="Completed requests cannot be deleted"
+                              className="p-2 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed opacity-60"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-6 flex justify-center border-t pt-4">
+              <Link
+                href="/dashboard/donor/my-requests"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-red-50 text-red-600 font-semibold hover:bg-red-100 active:bg-red-200 transition text-sm group"
+              >
+                View My All Requests
+                <ArrowRight
+                  size={16}
+                  className="transform group-hover:translate-x-1 transition"
+                />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isDeleteModalOpen && requestToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full border shadow-2xl space-y-6 transform scale-100 transition duration-300">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-red-100 text-red-600 rounded-2xl shrink-0">
+                <AlertTriangle size={28} />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-xl font-bold text-gray-900">
+                  {requestToDelete.status === "inprogress"
+                    ? "Cancel & Delete Request?"
+                    : "Delete Donation Request?"}
+                </h3>
+                <p className="text-gray-500 text-sm">
+                  Are you sure you want to{" "}
+                  {requestToDelete.status === "inprogress"
+                    ? "cancel and delete"
+                    : "delete"}{" "}
+                  this request? This action cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded-2xl border text-sm space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Recipient Name:</span>
+                <span className="font-semibold text-gray-900">
+                  {requestToDelete.recipientName}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Blood Group:</span>
+                <span className="bg-red-100 text-red-600 px-2.5 py-0.5 rounded-full font-bold text-xs">
+                  {requestToDelete.bloodGroup}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setIsDeleteModalOpen(false);
+                  setRequestToDelete(null);
+                }}
+                className="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 active:bg-gray-100 transition cursor-pointer text-sm"
+              >
+                Close
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="px-5 py-2.5 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 active:bg-red-700 transition shadow-md shadow-red-500/20 cursor-pointer text-sm"
+              >
+                {requestToDelete.status === "inprogress"
+                  ? "Yes, Cancel & Delete"
+                  : "Yes, Delete"}
+              </button>
+            </div>
           </div>
         </div>
       )}

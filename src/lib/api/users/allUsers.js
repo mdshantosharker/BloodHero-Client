@@ -5,4 +5,7 @@ export const getAllUsers = async () => {
   return res;
 };
 
-
+export const getDonations = async () => {
+  const res = await serverFetch("/donationRequests");
+  return res;
+};

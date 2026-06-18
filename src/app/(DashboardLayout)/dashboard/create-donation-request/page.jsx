@@ -15,8 +15,10 @@ import {
 import { useSession } from "@/lib/auth-client";
 import { toast } from "@heroui/react";
 import { createDonation } from "@/lib/api/donor/action";
+import { useRouter } from "next/navigation";
 
 export default function CreateDonationRequest() {
+  const router = useRouter();
   const { data: session } = useSession();
 
   const [mounted, setMounted] = useState(false);
@@ -115,8 +117,11 @@ export default function CreateDonationRequest() {
 
     const res = await createDonation({ ...data });
     // console.log(res);
-
-    toast.success("Donation Request Created Successfully!");
+    console.log(res);
+    if (res.insertedId) {
+      toast.success("Donation Request Created Successfully!");
+      router.push("/dashboard/my-donation-requests");
+    }
     form.reset();
     setDistrict("");
   };

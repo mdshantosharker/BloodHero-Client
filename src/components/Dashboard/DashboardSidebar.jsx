@@ -31,16 +31,6 @@ const DashboardSidebar = () => {
         label: "Dashboard Home",
         link: "/dashboard/donor",
       },
-      {
-        icon: HeartPulse,
-        label: "My Donation Requests",
-        link: "/dashboard/donor/my-donation-requests",
-      },
-      {
-        icon: PlusCircle,
-        label: "Create Donation Request",
-        link: "/dashboard/donor/create-donation-request",
-      },
     ],
 
     volunteer: [
@@ -147,6 +137,30 @@ const DashboardSidebar = () => {
             );
           })}
 
+          <Link
+            href="/dashboard/my-donation-requests"
+            className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200
+            ${
+              pathname === "/dashboard/my-donation-requests"
+                ? "bg-red-50 text-red-600 font-semibold shadow-sm"
+                : "hover:bg-red-50 hover:text-red-600"
+            }`}
+          >
+            <User size={20} />
+            My Request
+          </Link>
+          <Link
+            href="/dashboard/create-donation-request"
+            className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200
+            ${
+              pathname === "/dashboard/create-donation-request"
+                ? "bg-red-50 text-red-600 font-semibold shadow-sm"
+                : "hover:bg-red-50 hover:text-red-600"
+            }`}
+          >
+            <User size={20} />
+            Create Request
+          </Link>
           <Link
             href="/dashboard/profile"
             className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200
