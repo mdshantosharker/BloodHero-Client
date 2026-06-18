@@ -12,13 +12,13 @@ import {
   EyeOff,
 } from "lucide-react";
 import { UploadImage } from "@/utils/UploadImage";
-import { authClient, useSession } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import { toast } from "@heroui/react";
 import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
-  const { data: session } = useSession();
-  const user = session?.user;
+  const { data: session } = authClient.useSession();
+  let user = session?.user;
   const router = useRouter();
   const [avatar, setAvatar] = useState(null);
   const [preview, setPreview] = useState("");
@@ -108,6 +108,9 @@ export default function RegisterPage() {
     const { data, error } = await authClient.signUp.email({
       ...userInfo,
     });
+
+    user = session?.user;
+
     if (data) {
       toast.success("Registration Successfully");
       router.push(`/dashboard/${user?.role}`);
