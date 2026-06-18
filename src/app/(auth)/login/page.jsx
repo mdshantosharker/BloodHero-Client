@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 export default function LoginPage() {
   const router = useRouter();
   const { data: session } = useSession();
-  let user = session?.user;
+  const user = session?.user;
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -42,7 +42,7 @@ export default function LoginPage() {
       email: form.email.value,
       password: form.password.value,
     });
-    user = session?.user;
+    // user = session?.user;
     if (data) {
       toast.success("Login Successfully");
       router.push(`/dashboard/${user?.role}`);

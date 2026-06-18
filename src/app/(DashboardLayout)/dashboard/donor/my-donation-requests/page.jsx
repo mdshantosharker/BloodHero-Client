@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+// [ADD] Toast imported
 
 import {
   Eye,
@@ -11,10 +12,13 @@ import {
   MapPin,
   Filter,
   HeartPulse,
+  AlertTriangle, // [ADD] Icon for modal
 } from "lucide-react";
 
 import { useSession } from "@/lib/auth-client";
 import { getAllRequest } from "@/lib/api/donor/server";
+import { deleteMyRequests } from "@/lib/api/donor/action";
+import { toast } from "@heroui/react";
 
 export default function MyDonationRequestsPage() {
   const { data: session } = useSession();
@@ -24,15 +28,17 @@ export default function MyDonationRequestsPage() {
   const [page, setPage] = useState(1);
   const [request, setRequest] = useState([]);
 
-  useEffect(() => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [requestToDelete, setRequestToDelete] = useState(null);
+
+  const fetchRequests = async () => {
     if (!user?.email) return;
+    const data = await getAllRequest(user.email);
+    setRequest(data);
+  };
 
-    const allRequest = async () => {
-      const data = await getAllRequest(user.email);
-      setRequest(data);
-    };
-
-    allRequest();
+  useEffect(() => {
+    fetchRequests();
   }, [user?.email]);
 
   const requests = request;
@@ -51,14 +57,28 @@ export default function MyDonationRequestsPage() {
     page * perPage,
   );
 
-  const deleteRequest = (id) => {
-    if (window.confirm("Delete this request?")) {
-      console.log(id);
-    }
+  const openDeleteModal = (item) => {
+    setRequestToDelete(item);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!requestToDelete) return;
+
+    toast.promise(deleteMyRequests(requestToDelete._id), {
+      loading: "Deleting request...",
+      success: () => {
+        setIsModalOpen(false);
+        setRequestToDelete(null);
+        fetchRequests();
+        return `Successfully deleted request for ${requestToDelete.recipientName}!`;
+      },
+      error: "Failed to delete request. Try again.",
+    });
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 relative">
       <div className="bg-linear-to-r from-red-500 to-red-600 rounded-3xl p-6 md:p-8 text-white shadow-xl">
         <div className="flex gap-4 items-center">
           <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center">
@@ -160,7 +180,6 @@ export default function MyDonationRequestsPage() {
 
                   <td className="p-3">
                     <div className="flex gap-2">
-                      {/* View */}
                       <Link
                         href={`/dashboard/donor/view/${item._id}`}
                         className="p-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition"
@@ -168,7 +187,6 @@ export default function MyDonationRequestsPage() {
                         <Eye size={17} />
                       </Link>
 
-                      {/* Edit */}
                       {item.status === "pending" ? (
                         <Link
                           href={`/dashboard/donor/edit/${item._id}`}
@@ -186,11 +204,10 @@ export default function MyDonationRequestsPage() {
                         </button>
                       )}
 
-                      {/* Delete */}
                       {item.status === "pending" ? (
                         <button
-                          onClick={() => deleteRequest(item._id)}
-                          className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition"
+                          onClick={() => openDeleteModal(item)}
+                          className="p-2 cursor-pointer rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition"
                         >
                           <Trash2 size={17} />
                         </button>
@@ -235,6 +252,66 @@ export default function MyDonationRequestsPage() {
           </div>
         )}
       </div>
+
+      {isModalOpen && requestToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full border shadow-2xl space-y-6 transform scale-100 transition duration-300">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-red-100 text-red-600 rounded-2xl shrink-0">
+                <AlertTriangle size={28} />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-xl font-bold text-gray-900">
+                  Delete Donation Request?
+                </h3>
+                <p className="text-gray-500 text-sm">
+                  Are you sure you want to delete this request? This action
+                  cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded-2xl border text-sm space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Recipient Name:</span>
+                <span className="font-semibold text-gray-900">
+                  {requestToDelete.recipientName}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Blood Group:</span>
+                <span className="bg-red-100 text-red-600 px-2.5 py-0.5 rounded-full font-bold text-xs">
+                  {requestToDelete.bloodGroup}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Location:</span>
+                <span className="text-gray-700 font-medium line-clamp-1">
+                  {requestToDelete.address}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setRequestToDelete(null);
+                }}
+                className="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 active:bg-gray-100 transition cursor-pointer text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="px-5 py-2.5 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 active:bg-red-700 transition shadow-md shadow-red-500/20 cursor-pointer text-sm"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

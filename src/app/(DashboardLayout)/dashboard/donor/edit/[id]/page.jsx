@@ -15,12 +15,13 @@ import {
 
 import { useSession } from "@/lib/auth-client";
 import { toast } from "@heroui/react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getMyRequest } from "@/lib/api/donor/server";
 import { updateMyRequests } from "@/lib/api/donor/action";
 
 export default function EditDonationRequest() {
+  const router = useRouter();
   const params = useParams();
   const requestId = params?.id;
   const { data: session } = useSession();
@@ -135,6 +136,7 @@ export default function EditDonationRequest() {
     console.log(res);
     if (res.modifiedCount > 0) {
       toast.success("Donation Request Updated Successfully!");
+      router.push("/my-donation-requests");
     }
 
     // const res = await updateDonation(requestId, { ...updatedData });
