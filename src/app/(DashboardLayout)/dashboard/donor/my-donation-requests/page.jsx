@@ -131,11 +131,7 @@ export default function MyDonationRequestsPage() {
                       <div className="flex items-center gap-1">
                         <Clock size={14} />
 
-                        {new Date(item.createdAt).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
+                        {item.donationTime}
                       </div>
                     </div>
                   </td>
@@ -162,28 +158,51 @@ export default function MyDonationRequestsPage() {
                     </span>
                   </td>
 
-                  <td>
+                  <td className="p-3">
                     <div className="flex gap-2">
+                      {/* View */}
                       <Link
                         href={`/dashboard/donor/view/${item._id}`}
-                        className="p-2 rounded-lg bg-blue-100 text-blue-600"
+                        className="p-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition"
                       >
                         <Eye size={17} />
                       </Link>
 
-                      <Link
-                        href={`/dashboard/donor/edit/${item._id}`}
-                        className="p-2 rounded-lg bg-yellow-100 text-yellow-600"
-                      >
-                        <Edit size={17} />
-                      </Link>
+                      {/* Edit */}
+                      {item.status === "pending" ? (
+                        <Link
+                          href={`/dashboard/donor/edit/${item._id}`}
+                          className="p-2 rounded-lg bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition"
+                        >
+                          <Edit size={17} />
+                        </Link>
+                      ) : (
+                        <button
+                          disabled
+                          title="Only pending requests can be edited"
+                          className="p-2 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed opacity-60"
+                        >
+                          <Edit size={17} />
+                        </button>
+                      )}
 
-                      <button
-                        onClick={() => deleteRequest(item._d)}
-                        className="p-2 rounded-lg bg-red-100 text-red-600"
-                      >
-                        <Trash2 size={17} />
-                      </button>
+                      {/* Delete */}
+                      {item.status === "pending" ? (
+                        <button
+                          onClick={() => deleteRequest(item._id)}
+                          className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition"
+                        >
+                          <Trash2 size={17} />
+                        </button>
+                      ) : (
+                        <button
+                          disabled
+                          title="Only pending requests can be deleted"
+                          className="p-2 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed opacity-60"
+                        >
+                          <Trash2 size={17} />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
