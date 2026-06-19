@@ -174,7 +174,7 @@ export default function DonationDetailsClient({ initialData, requestId }) {
                     Contact Number
                   </p>
                   <p className="text-sm font-bold text-gray-800">
-                    {request.recipientPhoneNumber || "Provided on accept"}
+                    {request.recipientPhone || "Provided on accept"}
                   </p>
                 </div>
               </div>
