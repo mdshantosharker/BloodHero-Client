@@ -14,12 +14,14 @@ import {
 import { UploadImage } from "@/utils/UploadImage";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "@heroui/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function RegisterPage() {
   const { data: session } = authClient.useSession();
-  let user = session?.user;
+  // let user = session?.user;
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
   const [avatar, setAvatar] = useState(null);
   const [preview, setPreview] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
@@ -109,14 +111,15 @@ export default function RegisterPage() {
       ...userInfo,
     });
 
-    user = session?.user;
+    // user = session?.user;
 
     if (data) {
       toast.success("Registration Successfully");
-      router.push(`/dashboard/${user?.role}`);
-    }
-    if (error) {
-      toast.warning(error.message);
+      if (callbackUrl) {
+        router.push(`/login?callbackUrl=${callbackUrl}`);
+      } else {
+        router.push("/login");
+      }
     }
   };
 
@@ -332,7 +335,10 @@ export default function RegisterPage() {
 
         <p className="text-center mt-6 text-gray-500">
           Already have account?
-          <Link href="/login" className="text-red-500 ml-2 font-semibold">
+          <Link
+            href={callbackUrl ? `/login?callbackUrl=${callbackUrl}` : "/login"}
+            className="text-red-500 ml-2 font-semibold"
+          >
             Login
           </Link>
         </p>

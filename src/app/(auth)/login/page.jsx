@@ -5,10 +5,13 @@ import Link from "next/link";
 import { HeartPulse, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { authClient, useSession } from "@/lib/auth-client";
 import { toast } from "@heroui/react";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
-  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const callbackUrl = searchParams.get("callbackUrl");
+
   const { data: session } = useSession();
   const user = session?.user;
 
@@ -42,10 +45,16 @@ export default function LoginPage() {
       email: form.email.value,
       password: form.password.value,
     });
-    // user = session?.user;
+
     if (data) {
       toast.success("Login Successfully");
-      router.push(`/dashboard/${user?.role}`);
+
+      if (callbackUrl) {
+        window.location.href = callbackUrl;
+      } else {
+        window.location.href = "/";
+      }
+
       console.log(user?.role);
     }
 
@@ -122,7 +131,11 @@ export default function LoginPage() {
         <p className="text-center mt-6 text-gray-500">
           Don't have account?
           <Link
-            href="/registration"
+            href={
+              callbackUrl
+                ? `/registration?callbackUrl=${callbackUrl}`
+                : "/registration"
+            }
             className="text-red-500 ml-2 font-semibold"
           >
             Create Account
