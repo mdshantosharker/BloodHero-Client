@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 import { useSession } from "@/lib/auth-client";
-import { deleteMyRequests } from "@/lib/api/donor/action";
+import { deleteMyRequests, doneRequest } from "@/lib/api/donor/action";
 import { toast } from "@heroui/react";
 import { getDonations } from "@/lib/api/users/allUsers";
 
@@ -72,6 +72,8 @@ export default function AllBloodDonationRequestsPage() {
   };
 
   const handleMarkAsDone = async (id) => {
+    const res = await doneRequest({ status: "done" }, id);
+    console.log(res);
     toast.success("Request successfully marked as Done! 🎉");
 
     setRequests((prev) =>
