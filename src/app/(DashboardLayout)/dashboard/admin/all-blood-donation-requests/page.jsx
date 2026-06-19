@@ -343,7 +343,7 @@ export default function AllBloodDonationRequestsPage() {
               <div className="flex justify-between items-center">
                 <span className="text-gray-500 font-medium">User Email:</span>
                 <span className="text-xs text-gray-600 font-semibold truncate max-w-50">
-                  {requestToDelete.userEmail || requestToDelete.email || "N/A"}
+                  {requestToDelete.requesterEmail || "N/A"}
                 </span>
               </div>
               <div className="flex justify-between items-center">

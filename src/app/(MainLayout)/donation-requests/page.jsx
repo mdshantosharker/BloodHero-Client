@@ -50,7 +50,7 @@ export default function PublicBloodDonationRequestsPage() {
 
   const handleViewDetails = (requestId) => {
     if (!session?.user) {
-      toast.error("Please login first to view details! 🔒");
+      toast.error("Please login first to view details!");
       router.push("/login");
     } else {
       router.push(`/dashboard/donor/view/${requestId}`);
