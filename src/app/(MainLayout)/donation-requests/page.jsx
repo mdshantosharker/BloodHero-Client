@@ -51,7 +51,7 @@ export default function PublicBloodDonationRequestsPage() {
   // const handleViewDetails = (requestId) => {
   //   if (!session?.user) {
   //     toast.error("Please login first to view details!");
-  //     router.push("/login");
+  //     router.push("/auth/login");
   //   }
   // };
 

@@ -34,7 +34,7 @@ export default function DonationDetailsClient({ initialData, requestId }) {
   // useEffect(() => {
   //   if (!authLoading && !session?.user) {
   //     toast.error("Please login first to view request details! 🔒");
-  //     router.push("/login");
+  //     router.push("/auth/login");
   //   }
   // }, [session, authLoading, router]);
 

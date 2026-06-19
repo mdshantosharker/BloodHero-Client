@@ -6,10 +6,11 @@ import { useState, useRef, useEffect } from "react";
 import { HeartPulse, ChevronDown, LogOut, LayoutDashboard } from "lucide-react";
 
 import { authClient, useSession } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Avatar, toast } from "@heroui/react";
 
 export default function Navbar() {
+  const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
 
@@ -35,7 +36,7 @@ export default function Navbar() {
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
-          router.push("/login");
+          router.push("/auth/login");
           toast.success(user?.name + " Successfully LogOUt");
         },
       },
@@ -45,8 +46,6 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 bg-white border-b shadow-sm">
       <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-        {/* Logo */}
-
         <Link href="/" className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-full bg-red-500 flex items-center justify-center text-white shadow-md">
             <HeartPulse size={25} />
@@ -60,16 +59,56 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden md:flex gap-8 font-medium">
+          {/* Home Link */}
           <Link
-            href="/donation-requests"
-            className="hover:text-red-500 transition"
+            href="/"
+            className={`relative px-1 py-2 transition-all duration-300 ${
+              pathname === "/"
+                ? "text-red-500 font-semibold"
+                : "text-gray-600 hover:text-red-500"
+            }`}
           >
-            Donation Requests
+            Home
+            <span
+              className={`absolute left-0 -bottom-0.5 h-0.5 bg-red-500 rounded-full transition-all duration-300 ${
+                pathname === "/" ? "w-full" : "w-0"
+              }`}
+            />
           </Link>
 
+          {/* Donation Requests Link */}
+          <Link
+            href="/donation-requests"
+            className={`relative px-1 py-2 transition-all duration-300 ${
+              pathname === "/donation-requests"
+                ? "text-red-500 font-semibold"
+                : "text-gray-600 hover:text-red-500"
+            }`}
+          >
+            Donation Requests
+            <span
+              className={`absolute left-0 -bottom-0.5 h-0.5 bg-red-500 rounded-full transition-all duration-300 ${
+                pathname === "/donation-requests" ? "w-full" : "w-0"
+              }`}
+            />
+          </Link>
+
+          {/* Funding Link */}
           {user && (
-            <Link href="/funding" className="hover:text-red-500 transition">
+            <Link
+              href="/funding"
+              className={`relative px-1 py-2 transition-all duration-300 ${
+                pathname === "/funding"
+                  ? "text-red-500 font-semibold"
+                  : "text-gray-600 hover:text-red-500"
+              }`}
+            >
               Funding
+              <span
+                className={`absolute left-0 -bottom-0.5 h-0.5 bg-red-500 rounded-full transition-all duration-300 ${
+                  pathname === "/funding" ? "w-full" : "w-0"
+                }`}
+              />
             </Link>
           )}
         </div>
@@ -95,7 +134,11 @@ export default function Navbar() {
                 <Link
                   href={`/dashboard/${user?.role}`}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-50"
+                  className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300 ${
+                    pathname === `/dashboard/${user?.role}`
+                      ? "bg-red-50 text-red-500 font-semibold"
+                      : "hover:bg-red-50 text-gray-700 hover:text-red-500"
+                  }`}
                 >
                   <LayoutDashboard size={18} />
                   Dashboard
@@ -103,7 +146,7 @@ export default function Navbar() {
 
                 <button
                   onClick={logout}
-                  className="w-full cursor-pointer flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-50 text-left"
+                  className="w-full cursor-pointer flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-50 text-left text-gray-700 hover:text-red-500 transition-all duration-300"
                 >
                   <LogOut size={18} />
                   Logout
@@ -114,14 +157,14 @@ export default function Navbar() {
         ) : (
           <div className="flex gap-3">
             <Link
-              href="/login"
+              href="/auth/login"
               className="px-5 py-2.5 rounded-full border border-red-500 text-red-500 font-semibold hover:bg-red-500 hover:text-white transition"
             >
               Login
             </Link>
 
             <Link
-              href="/registration"
+              href="/auth/registration"
               className="px-5 py-2.5 rounded-full bg-red-500 text-white font-semibold hover:bg-red-600 shadow-md transition"
             >
               Registration

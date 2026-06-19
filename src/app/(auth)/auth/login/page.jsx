@@ -133,8 +133,8 @@ export default function LoginPage() {
           <Link
             href={
               callbackUrl
-                ? `/registration?callbackUrl=${callbackUrl}`
-                : "/registration"
+                ? `/auth/registration?callbackUrl=${callbackUrl}`
+                : "/auth/registration"
             }
             className="text-red-500 ml-2 font-semibold"
           >

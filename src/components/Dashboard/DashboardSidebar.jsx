@@ -70,7 +70,7 @@ const DashboardSidebar = () => {
       fetchOptions: {
         onSuccess: () => {
           toast.success(`${user?.name} Successfully Logged Out`);
-          router.push("/login");
+          router.push("/auth/login");
         },
       },
     });

@@ -27,7 +27,7 @@ export default function Banner() {
 
           <div className="flex flex-wrap gap-4 mt-8">
             <Link
-              href="/register"
+              href="/auth/registration"
               className="flex items-center gap-2 bg-white text-red-600 px-6 py-3 rounded-full font-semibold hover:bg-red-50 transition shadow-lg"
             >
               <UserPlus size={20} />

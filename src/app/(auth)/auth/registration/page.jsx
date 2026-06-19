@@ -116,9 +116,9 @@ export default function RegisterPage() {
     if (data) {
       toast.success("Registration Successfully");
       if (callbackUrl) {
-        router.push(`/login?callbackUrl=${callbackUrl}`);
+        router.push(`/auth/login?callbackUrl=${callbackUrl}`);
       } else {
-        router.push("/login");
+        router.push("/auth/login");
       }
     }
   };
@@ -336,7 +336,11 @@ export default function RegisterPage() {
         <p className="text-center mt-6 text-gray-500">
           Already have account?
           <Link
-            href={callbackUrl ? `/login?callbackUrl=${callbackUrl}` : "/login"}
+            href={
+              callbackUrl
+                ? `/auth/login?callbackUrl=${callbackUrl}`
+                : "auth/login"
+            }
             className="text-red-500 ml-2 font-semibold"
           >
             Login

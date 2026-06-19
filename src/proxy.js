@@ -8,7 +8,7 @@ export async function proxy(request) {
   });
 
   if (!session?.user) {
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = new URL("/auth/login", request.url);
 
     loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
 
@@ -19,5 +19,10 @@ export async function proxy(request) {
 }
 
 export const config = {
-  matcher: ["/profile", "/donation-requests/:id"],
+  matcher: [
+    "/profile",
+    "/donation-requests/:path+",
+    "/funding",
+    "/dashboard/:path*",
+  ],
 };

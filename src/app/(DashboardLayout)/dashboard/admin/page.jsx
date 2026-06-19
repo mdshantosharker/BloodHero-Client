@@ -61,30 +61,10 @@ export default function AdminDashboard() {
           return (
             <div
               key={item.title}
-              className="
-                bg-white
-                rounded-3xl
-                border
-                border-gray-100
-                p-5
-                shadow-sm
-                hover:shadow-lg
-                transition
-                "
+              className="bg-white rounded-3xl border border-gray-100 p-5 shadow-sm hover:shadow-lg transition"
             >
               <div className="flex items-center justify-between">
-                <div
-                  className="
-                    w-14
-                    h-14
-                    rounded-2xl
-                    bg-red-50
-                    text-red-600
-                    flex
-                    items-center
-                    justify-center
-                    "
-                >
+                <div className="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center">
                   <Icon size={28} />
                 </div>
 
