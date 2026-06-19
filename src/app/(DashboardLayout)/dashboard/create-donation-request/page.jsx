@@ -10,6 +10,8 @@ import {
   Calendar,
   Clock,
   MessageSquare,
+  Phone,
+  AlertTriangle,
 } from "lucide-react";
 
 import { useSession } from "@/lib/auth-client";
@@ -29,6 +31,8 @@ export default function CreateDonationRequest() {
   }, []);
 
   const user = mounted ? session?.user : null;
+
+  const isBlocked = user?.status === "blocked";
 
   const upazilaData = {
     Dhaka: ["Dhanmondi", "Mirpur", "Uttara", "Savar", "Keraniganj"],
@@ -65,7 +69,7 @@ export default function CreateDonationRequest() {
   const submitHandler = async (e) => {
     e.preventDefault();
 
-    if (user?.status === "blocked") {
+    if (isBlocked) {
       toast.error("Blocked user cannot create request");
       return;
     }
@@ -73,6 +77,7 @@ export default function CreateDonationRequest() {
     const form = e.target;
 
     if (
+      !form.recipientPhone.value ||
       !form.district.value ||
       !form.upazila.value ||
       !form.hospital.value ||
@@ -104,6 +109,7 @@ export default function CreateDonationRequest() {
       requesterName: user?.name,
       requesterEmail: user?.email,
       recipientName: form.recipientName.value,
+      recipientPhone: form.recipientPhone.value,
       recipientDistrict: form.district.value,
       recipientUpazila: form.upazila.value,
       hospital: form.hospital.value,
@@ -116,7 +122,6 @@ export default function CreateDonationRequest() {
     };
 
     const res = await createDonation({ ...data });
-    // console.log(res);
     console.log(res);
     if (res.insertedId) {
       toast.success("Donation Request Created Successfully!");
@@ -136,7 +141,7 @@ export default function CreateDonationRequest() {
 
   return (
     <div className="min-h-screen bg-slate-50/60 p-4 sm:p-6 lg:p-10 flex items-center justify-center">
-      <div className="w-full  bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+      <div className="w-full bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
         <div className="relative overflow-hidden bg-linear-to-br from-red-500 to-rose-600 p-6 sm:p-10 text-white">
           <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
           <div className="flex flex-col sm:flex-row items-center gap-5 relative z-10">
@@ -181,6 +186,7 @@ export default function CreateDonationRequest() {
             placeholder="Enter patient's name"
             icon={<User size={18} />}
             required
+            disabled={isBlocked}
           />
 
           <Select
@@ -188,6 +194,17 @@ export default function CreateDonationRequest() {
             name="bloodGroup"
             options={["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]}
             required
+            disabled={isBlocked}
+          />
+
+          <Input
+            name="recipientPhone"
+            type="tel"
+            label="Contact Number"
+            placeholder="e.g. 017XXXXXXXX"
+            icon={<Phone size={18} />}
+            required
+            disabled={isBlocked}
           />
 
           <Select
@@ -196,12 +213,13 @@ export default function CreateDonationRequest() {
             onChange={(e) => setDistrict(e.target.value)}
             options={Object.keys(upazilaData)}
             required
+            disabled={isBlocked}
           />
 
           <Select
             label="Recipient Upazila"
             name="upazila"
-            disabled={!district}
+            disabled={!district || isBlocked}
             options={district ? upazilaData[district] : []}
             required
           />
@@ -209,7 +227,7 @@ export default function CreateDonationRequest() {
           <Select
             label="Hospital Name"
             name="hospital"
-            disabled={!district}
+            disabled={!district || isBlocked}
             options={district ? hospitalData[district] : []}
             required
           />
@@ -226,7 +244,8 @@ export default function CreateDonationRequest() {
                 name="date"
                 type="date"
                 required
-                className="w-full rounded-xl border border-slate-200 py-3.5 pl-12 pr-4 bg-slate-50 text-sm font-medium text-slate-800 outline-none transition duration-200 focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-500/10 cursor-pointer"
+                disabled={isBlocked}
+                className="w-full rounded-xl border border-slate-200 py-3.5 pl-12 pr-4 bg-slate-50 text-sm font-medium text-slate-800 outline-none transition duration-200 focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-500/10 cursor-pointer disabled:opacity-50 disabled:bg-slate-100 disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -243,7 +262,8 @@ export default function CreateDonationRequest() {
                 name="time"
                 type="time"
                 required
-                className="w-full rounded-xl border border-slate-200 py-3.5 pl-12 pr-4 bg-slate-50 text-sm font-medium text-slate-800 outline-none transition duration-200 focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-500/10 cursor-pointer"
+                disabled={isBlocked}
+                className="w-full rounded-xl border border-slate-200 py-3.5 pl-12 pr-4 bg-slate-50 text-sm font-medium text-slate-800 outline-none transition duration-200 focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-500/10 cursor-pointer disabled:opacity-50 disabled:bg-slate-100 disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -254,6 +274,7 @@ export default function CreateDonationRequest() {
               label="Full Address Details"
               placeholder="e.g. Ward No 4, Floor 3, Bed 12"
               icon={<MapPin size={18} />}
+              disabled={isBlocked}
             />
           </div>
 
@@ -269,17 +290,43 @@ export default function CreateDonationRequest() {
               <textarea
                 name="message"
                 rows="4"
+                disabled={isBlocked}
                 placeholder="Briefly describe the medical condition or emergency reasons to encourage donors..."
-                className="w-full rounded-xl border border-slate-200 p-4 pl-12 bg-slate-50 text-sm font-medium text-slate-800 outline-none transition duration-200 focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-500/10 resize-none"
+                className="w-full rounded-xl border border-slate-200 p-4 pl-12 bg-slate-50 text-sm font-medium text-slate-800 outline-none transition duration-200 focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-500/10 resize-none disabled:opacity-50 disabled:bg-slate-100 disabled:cursor-not-allowed"
               />
             </div>
           </div>
 
+          {isBlocked && (
+            <div className="md:col-span-2 flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl text-sm font-medium">
+              <AlertTriangle
+                className="text-red-500 shrink-0 mt-0.5"
+                size={18}
+              />
+              <div>
+                <p className="font-bold">Your account is currently blocked!</p>
+                <p className="text-red-600/90 text-xs mt-0.5">
+                  You are unable to create any new blood requests. Please
+                  contact the administrator as soon as possible to resolve the
+                  issue.
+                </p>
+              </div>
+            </div>
+          )}
+
           <button
             type="submit"
-            className="md:col-span-2 mt-4 py-4 rounded-xl bg-linear-to-r from-red-500 to-rose-600 text-white font-bold text-base shadow-md shadow-red-500/20 hover:shadow-lg hover:shadow-red-500/30 active:scale-[0.99] transition duration-200 cursor-pointer"
+            disabled={isBlocked}
+            className={`md:col-span-2 mt-2 py-4 rounded-xl text-white font-bold text-base transition duration-200 
+              ${
+                isBlocked
+                  ? "bg-slate-300 border border-slate-200 cursor-not-allowed text-slate-500 shadow-none"
+                  : "bg-linear-to-r from-red-500 to-rose-600 shadow-md shadow-red-500/20 hover:shadow-lg hover:shadow-red-500/30 active:scale-[0.99] cursor-pointer"
+              }`}
           >
-            Create Donation Request
+            {isBlocked
+              ? "Request Disabled (Account Blocked)"
+              : "Create Donation Request"}
           </button>
         </form>
       </div>
@@ -303,7 +350,8 @@ function Input({ label, icon, ...props }) {
           {...props}
           className={`
             w-full rounded-xl border border-slate-200 py-3.5 pl-12 pr-4 bg-slate-50 text-sm font-medium text-slate-800 outline-none transition duration-200 
-            ${props.readOnly ? "opacity-65 bg-slate-100 cursor-not-allowed border-slate-200/60" : "focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-500/10"}
+            ${props.readOnly ? "opacity-65 bg-slate-100 cursor-not-allowed border-slate-200/60" : ""}
+            ${props.disabled ? "opacity-50 bg-slate-100 cursor-not-allowed border-slate-200/60" : "focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-500/10"}
           `}
         />
       </div>
