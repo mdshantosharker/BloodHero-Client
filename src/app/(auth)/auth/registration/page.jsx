@@ -11,10 +11,11 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import { UploadImage } from "@/utils/UploadImage";
-import { authClient } from "@/lib/auth-client";
+
 import { toast } from "@heroui/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { UploadImage } from "@/utils/UploadImage";
+import { authClient } from "@/lib/auth-client";
 
 export default function RegisterPage() {
   const { data: session } = authClient.useSession();
@@ -120,6 +121,10 @@ export default function RegisterPage() {
       } else {
         router.push("/auth/login");
       }
+    }
+
+    if (error) {
+      toast.danger(error.message);
     }
   };
 
@@ -328,7 +333,7 @@ export default function RegisterPage() {
             )}
           </div>
 
-          <button className="md:col-span-2 bg-red-500 text-white py-3 rounded-xl font-semibold hover:bg-red-600 transition">
+          <button className="md:col-span-2 cursor-pointer bg-red-500 text-white py-3 rounded-xl font-semibold hover:bg-red-600 transition">
             Create Donor Account
           </button>
         </form>

@@ -13,6 +13,7 @@ import {
   CheckCircle,
   XCircle,
   ArrowRight,
+  PlusCircle,
 } from "lucide-react";
 
 import { useSession } from "@/lib/auth-client";
@@ -41,7 +42,7 @@ export default function DashboardHomePage() {
     fetchRequests();
   }, [user?.email]);
 
-  const recentRequests = requests.slice(0, 3);
+  const recentRequests = requests.slice(-3).reverse();
 
   const openDeleteModal = (item) => {
     setRequestToDelete(item);
@@ -70,15 +71,9 @@ export default function DashboardHomePage() {
       },
       id,
     );
-    console.log(res);
+    // console.log(res);
     router.refresh();
     toast.success("Request successfully marked as Done! 🎉");
-
-    // setRequests((prev) =>
-    //   prev.map((item) =>
-    //     item._id === id ? { ...item, status: "done" } : item,
-    //   ),
-    // );
   };
 
   return (
@@ -99,176 +94,200 @@ export default function DashboardHomePage() {
         </div>
       </div>
 
-      {recentRequests.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex justify-between items-center px-2">
-            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-              <HeartPulse className="text-red-500" size={22} />
-              Recent Donation Requests
-            </h2>
-            <span className="text-xs bg-red-50 text-red-600 px-3 py-1 rounded-full font-semibold">
-              Showing max 3 requests
-            </span>
+      {requests.length === 0 ? (
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-xl p-8 md:p-16 flex flex-col items-center text-center max-w-2xl mx-auto space-y-6 transform transition duration-300">
+          <div className="w-20 h-20 rounded-3xl bg-red-50 flex items-center justify-center text-red-500 shadow-inner animate-pulse">
+            <HeartPulse size={40} />
           </div>
+          <div className="space-y-2 max-w-sm">
+            <h3 className="text-xl font-bold text-gray-800">
+              No Donation Requests Yet
+            </h3>
+            <p className="text-gray-500 text-sm leading-relaxed">
+              You haven't created any blood donation requests yet. If you or
+              someone you know needs blood support, create a request now.
+            </p>
+          </div>
+          <Link
+            href="/dashboard/create-donation-request"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-red-500 text-white font-semibold hover:bg-red-600 active:scale-95 transition shadow-lg shadow-red-500/20 text-sm cursor-pointer"
+          >
+            <PlusCircle size={18} />
+            Create Blood Request
+          </Link>
+        </div>
+      ) : (
+        recentRequests.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center px-2">
+              <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <HeartPulse className="text-red-500" size={22} />
+                Recent Donation Requests
+              </h2>
+              <span className="text-xs bg-red-50 text-red-600 px-3 py-1 rounded-full font-semibold">
+                Showing max 3 requests
+              </span>
+            </div>
 
-          <div className="bg-white rounded-3xl shadow-lg border p-5">
-            <div className="overflow-x-auto">
-              <table className="min-w-200 w-full">
-                <thead>
-                  <tr className="border-b text-left text-gray-500 text-sm">
-                    <th className="p-3">Recipient</th>
-                    <th className="p-3">Location (Upazila, District)</th>
-                    <th className="p-3">Date & Time</th>
-                    <th className="p-3">Blood Group</th>
-                    <th className="p-3">Status</th>
-                    <th className="p-3 text-center">Action</th>
-                  </tr>
-                </thead>
+            <div className="bg-white rounded-3xl shadow-lg border p-5">
+              <div className="overflow-x-auto">
+                <table className="min-w-200 w-full">
+                  <thead>
+                    <tr className="border-b text-left text-gray-500 text-sm">
+                      <th className="p-3">Recipient</th>
+                      <th className="p-3">Location (Upazila, District)</th>
+                      <th className="p-3">Date & Time</th>
+                      <th className="p-3">Blood Group</th>
+                      <th className="p-3">Status</th>
+                      <th className="p-3 text-center">Action</th>
+                    </tr>
+                  </thead>
 
-                <tbody>
-                  {recentRequests.map((item) => (
-                    <tr
-                      key={item._id}
-                      className="border-b hover:bg-red-50/50 transition"
-                    >
-                      <td className="p-3 font-semibold text-gray-900">
-                        {item.recipientName}
-                      </td>
+                  <tbody>
+                    {recentRequests.map((item) => (
+                      <tr
+                        key={item._id}
+                        className="border-b hover:bg-red-50/50 transition"
+                      >
+                        <td className="p-3 font-semibold text-gray-900">
+                          {item.recipientName}
+                        </td>
 
-                      <td className="p-3">
-                        <div className="flex gap-1 items-center text-gray-600 text-sm">
-                          <MapPin size={15} className="text-gray-400" />
-                          <span className="capitalize">
-                            {item.recipientUpazila
-                              ? `${item.recipientUpazila}, `
-                              : ""}
-                            {item.recipientDistrict || item.address}
+                        <td className="p-3">
+                          <div className="flex gap-1 items-center text-gray-600 text-sm">
+                            <MapPin size={15} className="text-gray-400" />
+                            <span className="capitalize">
+                              {item.recipientUpazila
+                                ? `${item.recipientUpazila}, `
+                                : ""}
+                              {item.recipientDistrict || item.address}
+                            </span>
+                          </div>
+                        </td>
+
+                        <td className="p-3 text-sm text-gray-600">
+                          <div className="flex items-center gap-1.5">
+                            <Clock size={14} className="text-gray-400" />
+                            <span>
+                              {item.donationDate || "Today"} |{" "}
+                              {item.donationTime}
+                            </span>
+                          </div>
+                        </td>
+
+                        <td className="p-3">
+                          <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full font-bold text-sm">
+                            {item.bloodGroup}
                           </span>
-                        </div>
-                      </td>
+                        </td>
 
-                      <td className="p-3 text-sm text-gray-600">
-                        <div className="flex items-center gap-1.5">
-                          <Clock size={14} className="text-gray-400" />
-                          <span>
-                            {item.donationDate || "Today"} | {item.donationTime}
-                          </span>
-                        </div>
-                      </td>
+                        <td className="p-3">
+                          <div className="flex flex-col gap-2 items-start">
+                            <span
+                              className={`px-3 py-0.5 rounded-full capitalize text-xs font-medium ${
+                                item.status === "pending"
+                                  ? "bg-yellow-100 text-yellow-700"
+                                  : item.status === "inprogress"
+                                    ? "bg-blue-100 text-blue-700"
+                                    : item.status === "done"
+                                      ? "bg-green-100 text-green-700"
+                                      : "bg-gray-100 text-gray-700"
+                              }`}
+                            >
+                              {item.status}
+                            </span>
 
-                      <td className="p-3">
-                        <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full font-bold text-sm">
-                          {item.bloodGroup}
-                        </span>
-                      </td>
+                            {item.status === "inprogress" && (
+                              <div className="flex gap-1.5 mt-1">
+                                <button
+                                  onClick={() => handleMarkAsDone(item._id)}
+                                  className="flex items-center gap-1 text-[11px] bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-md transition cursor-pointer font-medium"
+                                >
+                                  <CheckCircle size={12} /> Done
+                                </button>
 
-                      <td className="p-3">
-                        <div className="flex flex-col gap-2 items-start">
-                          <span
-                            className={`px-3 py-0.5 rounded-full capitalize text-xs font-medium ${
-                              item.status === "pending"
-                                ? "bg-yellow-100 text-yellow-700"
-                                : item.status === "inprogress"
-                                  ? "bg-blue-100 text-blue-700"
-                                  : item.status === "done"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-gray-100 text-gray-700"
-                            }`}
-                          >
-                            {item.status}
-                          </span>
+                                <button
+                                  onClick={() => openDeleteModal(item)}
+                                  className="flex items-center gap-1 text-[11px] bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-md transition cursor-pointer font-medium"
+                                >
+                                  <XCircle size={12} /> Cancel
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </td>
 
-                          {item.status === "inprogress" && (
-                            <div className="flex gap-1.5 mt-1">
-                              <button
-                                onClick={() => handleMarkAsDone(item._id)}
-                                className="flex items-center gap-1 text-[11px] bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-md transition cursor-pointer font-medium"
+                        <td className="p-3 text-center">
+                          <div className="flex gap-2 justify-center">
+                            <Link
+                              href={`/donation-requests/${item._id}`}
+                              className="p-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition"
+                            >
+                              <Eye size={16} />
+                            </Link>
+
+                            {item.status === "pending" ? (
+                              <Link
+                                href={`/dashboard/donor/edit/${item._id}`}
+                                className="p-2 rounded-lg bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition"
                               >
-                                <CheckCircle size={12} /> Done
+                                <Edit size={16} />
+                              </Link>
+                            ) : (
+                              <button
+                                disabled
+                                title="Only pending requests can be edited"
+                                className="p-2 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed opacity-60"
+                              >
+                                <Edit size={16} />
                               </button>
+                            )}
 
+                            {item.status === "pending" ||
+                            item.status === "inprogress" ? (
                               <button
                                 onClick={() => openDeleteModal(item)}
-                                className="flex items-center gap-1 text-[11px] bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-md transition cursor-pointer font-medium"
+                                className="p-2 cursor-pointer rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition"
+                                title={
+                                  item.status === "inprogress"
+                                    ? "Cancel & Delete Request"
+                                    : "Delete Request"
+                                }
                               >
-                                <XCircle size={12} /> Cancel
+                                <Trash2 size={16} />
                               </button>
-                            </div>
-                          )}
-                        </div>
-                      </td>
+                            ) : (
+                              <button
+                                disabled
+                                title="Completed requests cannot be deleted"
+                                className="p-2 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed opacity-60"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-                      <td className="p-3 text-center">
-                        <div className="flex gap-2 justify-center">
-                          {/* View */}
-                          <Link
-                            href={`/dashboard/donor/view/${item._id}`}
-                            className="p-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition"
-                          >
-                            <Eye size={16} />
-                          </Link>
-
-                          {item.status === "pending" ? (
-                            <Link
-                              href={`/dashboard/donor/edit/${item._id}`}
-                              className="p-2 rounded-lg bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition"
-                            >
-                              <Edit size={16} />
-                            </Link>
-                          ) : (
-                            <button
-                              disabled
-                              title="Only pending requests can be edited"
-                              className="p-2 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed opacity-60"
-                            >
-                              <Edit size={16} />
-                            </button>
-                          )}
-
-                          {item.status === "pending" ||
-                          item.status === "inprogress" ? (
-                            <button
-                              onClick={() => openDeleteModal(item)}
-                              className="p-2 cursor-pointer rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition"
-                              title={
-                                item.status === "inprogress"
-                                  ? "Cancel & Delete Request"
-                                  : "Delete Request"
-                              }
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          ) : (
-                            <button
-                              disabled
-                              title="Completed requests cannot be deleted"
-                              className="p-2 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed opacity-60"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="mt-6 flex justify-center border-t pt-4">
-              <Link
-                href="/dashboard/donor/my-requests"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-red-50 text-red-600 font-semibold hover:bg-red-100 active:bg-red-200 transition text-sm group"
-              >
-                View My All Requests
-                <ArrowRight
-                  size={16}
-                  className="transform group-hover:translate-x-1 transition"
-                />
-              </Link>
+              <div className="mt-6 flex justify-center border-t pt-4">
+                <Link
+                  href="/dashboard/my-donation-requests"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-red-50 text-red-600 font-semibold hover:bg-red-100 active:bg-red-200 transition text-sm group"
+                >
+                  View My All Requests
+                  <ArrowRight
+                    size={16}
+                    className="transform group-hover:translate-x-1 transition"
+                  />
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
+        )
       )}
 
       {isDeleteModalOpen && requestToDelete && (

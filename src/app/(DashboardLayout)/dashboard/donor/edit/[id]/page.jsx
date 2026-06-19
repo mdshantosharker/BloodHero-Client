@@ -136,7 +136,7 @@ export default function EditDonationRequest() {
     console.log(res);
     if (res.modifiedCount > 0) {
       toast.success("Donation Request Updated Successfully!");
-      router.push("/my-donation-requests");
+      router.push("/dashboard/my-donation-requests");
     }
 
     // const res = await updateDonation(requestId, { ...updatedData });

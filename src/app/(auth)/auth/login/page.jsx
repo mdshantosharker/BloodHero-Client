@@ -3,9 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { HeartPulse, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { authClient, useSession } from "@/lib/auth-client";
 import { toast } from "@heroui/react";
 import { useSearchParams } from "next/navigation";
+import { authClient, useSession } from "@/lib/auth-client";
 
 export default function LoginPage() {
   const searchParams = useSearchParams();
@@ -48,7 +48,6 @@ export default function LoginPage() {
 
     if (data) {
       toast.success("Login Successfully");
-
       if (callbackUrl) {
         window.location.href = callbackUrl;
       } else {

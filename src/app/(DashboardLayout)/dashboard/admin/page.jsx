@@ -1,18 +1,24 @@
-"use client";
-
 import { Users, HandCoins, HeartPulse, ShieldCheck } from "lucide-react";
 
-import { useSession } from "@/lib/auth-client";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import { getAllUsers, getDonations } from "@/lib/api/users/allUsers";
 
-export default function AdminDashboard() {
-  const { data: session } = useSession();
+export default async function AdminDashboard() {
+  const session = await auth.api.getSession({
+    headers: await headers(), // you need to pass the headers object.
+  });
 
   const user = session?.user;
+
+  const data = await getAllUsers();
+  const bloodData = await getDonations();
+  // console.log(data);
 
   const stats = [
     {
       title: "Total Users",
-      count: 1250,
+      count: data.length,
       icon: Users,
       desc: "Registered Donors",
     },
@@ -26,7 +32,7 @@ export default function AdminDashboard() {
 
     {
       title: "Blood Requests",
-      count: 320,
+      count: bloodData.length,
       icon: HeartPulse,
       desc: "Total Requests",
     },

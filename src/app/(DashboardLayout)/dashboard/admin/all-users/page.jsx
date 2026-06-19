@@ -5,15 +5,22 @@ import {
   MoreVertical,
   UserRound,
   UserCog,
+  User,
   Ban,
   CheckCircle,
+  Filter,
+  ShieldAlert,
 } from "lucide-react";
 
+import { useSession } from "@/lib/auth-client";
 import { getAllUsers } from "@/lib/api/users/allUsers";
 import { updateUserStatus } from "@/lib/api/users/action";
 import { toast } from "@heroui/react";
 
 export default function AllUsersPage() {
+  const { data: session } = useSession();
+  const currentUserEmail = session?.user?.email;
+
   const [filter, setFilter] = useState("all");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,9 +29,9 @@ export default function AllUsersPage() {
     const fetchUsers = async () => {
       try {
         const data = await getAllUsers();
-        setUsers(data);
+        setUsers(data || []);
       } catch (error) {
-        toast.error(error.message);
+        toast.error(error.message || "Failed to load users.");
       } finally {
         setLoading(false);
       }
@@ -34,30 +41,21 @@ export default function AllUsersPage() {
   }, []);
 
   const changeStatus = async (id) => {
-    const currentUser = users.find((user) => (user._id || user.id) === id);
+    const targetUser = users.find((user) => (user._id || user.id) === id);
+    if (!targetUser) return;
 
-    const newStatus = currentUser.status === "active" ? "blocked" : "active";
+    const newStatus = targetUser.status === "active" ? "blocked" : "active";
 
     try {
-      await updateUserStatus(
-        {
-          status: newStatus,
-        },
-        id,
-      );
+      await updateUserStatus({ status: newStatus }, id);
 
       setUsers((prev) =>
         prev.map((user) =>
-          (user._id || user.id) === id
-            ? {
-                ...user,
-                status: newStatus,
-              }
-            : user,
+          (user._id || user.id) === id ? { ...user, status: newStatus } : user,
         ),
       );
 
-      toast.success(`Role changed to ${newStatus}`);
+      toast.success(`User status changed to ${newStatus}`);
     } catch (error) {
       toast.error(error.message);
     }
@@ -65,25 +63,15 @@ export default function AllUsersPage() {
 
   const makeRole = async (id, role) => {
     try {
-      await updateUserStatus(
-        {
-          role,
-        },
-        id,
-      );
+      await updateUserStatus({ role }, id);
 
       setUsers((prev) =>
         prev.map((user) =>
-          (user._id || user.id) === id
-            ? {
-                ...user,
-                role,
-              }
-            : user,
+          (user._id || user.id) === id ? { ...user, role } : user,
         ),
       );
 
-      toast.success(`Role changed to ${role}`);
+      toast.success(`Role changed to ${role} 🎉`);
     } catch (error) {
       toast.error(error.message);
     }
@@ -93,226 +81,239 @@ export default function AllUsersPage() {
     filter === "all" ? users : users.filter((user) => user.status === filter);
 
   if (loading) {
-    return <div className="p-10 font-bold">Loading Users...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
+        <span className="ml-3 font-bold text-gray-600">Loading Users...</span>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      <div
-        className="
-bg-linear-to-r from-red-500 to-rose-600
-rounded-3xl p-6 text-white shadow-lg
-"
-      >
-        <h1 className="text-3xl font-bold">All Users</h1>
-
-        <p className="text-red-100">Manage users and permissions</p>
+    <div className="space-y-6 pb-10">
+      <div className="bg-linear-to-r from-red-600 via-red-500 to-rose-500 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
+        <div className="flex gap-4 items-center">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-black tracking-tight">
+              All Users 👥
+            </h1>
+            <p className="text-red-100 text-sm mt-1 font-medium opacity-90">
+              Admin Panel • Manage user accounts, block list, and assign roles.
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div
-        className="
-bg-white rounded-2xl border p-4
-flex justify-between items-center
-"
-      >
-        <h2 className="font-bold">Users List</h2>
+      <div className="bg-white rounded-2xl border border-gray-100 p-4 flex flex-wrap gap-4 justify-between items-center shadow-xs">
+        <div className="flex items-center gap-2 font-bold text-gray-800 text-sm md:text-base">
+          <Filter size={18} className="text-red-500" />
+          <h2>Users Directory ({filteredUsers.length})</h2>
+        </div>
 
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="border rounded-xl p-2"
-        >
-          <option value="all">All</option>
-
-          <option value="active">Active</option>
-
-          <option value="blocked">Blocked</option>
-        </select>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+            Status:
+          </span>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="border border-gray-200 bg-gray-50/50 rounded-xl p-2 text-sm font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500/20 cursor-pointer"
+          >
+            <option value="all">All Statuses</option>
+            <option value="active">Active Only</option>
+            <option value="blocked">Blocked Only</option>
+          </select>
+        </div>
       </div>
 
-      <div
-        className="
-bg-white rounded-3xl border shadow
-overflow-x-auto
-"
-      >
-        <table className="w-full min-w-200">
-          <thead className="bg-red-50">
-            <tr>
-              <th className="p-4 text-left">User</th>
-
-              <th className="p-4">Email</th>
-
-              <th className="p-4">Role</th>
-
-              <th className="p-4">Status</th>
-
-              <th className="p-4">Action</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {filteredUsers.map((user) => (
-              <tr key={user._id || user.id} className="border-t">
-                <td className="p-4 flex gap-3 items-center">
-                  <img
-                    src={
-                      user.image ||
-                      "https://img.heroui.chat/image/avatar?w=400&h=400&u=3"
-                    }
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-
-                  <div>
-                    <p className="font-semibold">{user.name}</p>
-
-                    <p className="text-sm text-red-500">
-                      Blood: {user.bloodGroup || "N/A"}
-                    </p>
-                  </div>
-                </td>
-
-                <td className="p-4">{user.email}</td>
-
-                <td className="p-4">
-                  <span
-                    className="
-px-3 py-1 rounded-full
-bg-red-50 text-red-600
-font-semibold
-"
-                  >
-                    {user.role}
-                  </span>
-                </td>
-
-                <td className="p-4">
-                  {user.status === "active" ? (
-                    <span
-                      className="
-flex gap-2 items-center
-text-green-600 font-semibold
-"
-                    >
-                      <CheckCircle size={17} />
-                      Active
-                    </span>
-                  ) : (
-                    <span
-                      className="
-flex gap-2 items-center
-text-red-500 font-semibold
-"
-                    >
-                      <Ban size={17} />
-                      Blocked
-                    </span>
-                  )}
-                </td>
-
-                <td className="p-4">
-                  <ActionMenu
-                    user={user}
-                    changeStatus={changeStatus}
-                    makeRole={makeRole}
-                  />
-                </td>
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-200 text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-50/70 border-b border-gray-200/60 text-gray-500 text-xs uppercase tracking-wider font-bold">
+                <th className="p-4 pl-6">User Details</th>
+                <th className="p-4">Email Address</th>
+                <th className="p-4">System Role</th>
+                <th className="p-4">Account Status</th>
+                <th className="p-4 text-center pr-6">Management</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody className="divide-y divide-gray-100 text-gray-700 text-sm">
+              {filteredUsers.map((user) => {
+                const isSelf =
+                  currentUserEmail && user.email === currentUserEmail;
+
+                return (
+                  <tr
+                    key={user._id || user.id}
+                    className={`transition-colors duration-150 ${
+                      isSelf
+                        ? "bg-amber-50/30 hover:bg-amber-50/50"
+                        : "hover:bg-red-50/20"
+                    }`}
+                  >
+                    <td className="p-4 pl-6">
+                      <div className="flex gap-3 items-center">
+                        <div className="relative">
+                          <img
+                            src={
+                              user.image ||
+                              "https://img.heroui.chat/image/avatar?w=400&h=400&u=3"
+                            }
+                            alt={user.name}
+                            className={`w-11 h-11 rounded-full object-cover border-2 ${
+                              isSelf ? "border-amber-400" : "border-gray-100"
+                            }`}
+                          />
+                          {isSelf && (
+                            <span className="absolute -bottom-1 -right-1 bg-amber-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wide border-2 border-white shadow-xs">
+                              You
+                            </span>
+                          )}
+                        </div>
+
+                        <div>
+                          <p className="font-bold text-gray-900 flex items-center gap-1.5 text-base">
+                            {user.name}
+                          </p>
+                          <p className="text-xs text-red-500 font-bold tracking-wide">
+                            🩸 Blood Group: {user.bloodGroup || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="p-4 font-medium text-gray-600">
+                      {user.email}
+                    </td>
+
+                    <td className="p-4">
+                      <span className="px-3 py-1.5 rounded-xl bg-red-50 text-red-600 font-bold text-xs capitalize border border-red-100/60 shadow-2xs">
+                        {user.role || "donor"}
+                      </span>
+                    </td>
+
+                    <td className="p-4">
+                      {user.status === "active" ? (
+                        <span className="inline-flex gap-1.5 items-center bg-emerald-50 text-emerald-700 font-bold text-xs px-2.5 py-1 rounded-full border border-emerald-200">
+                          <CheckCircle size={14} />
+                          Active
+                        </span>
+                      ) : (
+                        <span className="inline-flex gap-1.5 items-center bg-red-50 text-red-600 font-bold text-xs px-2.5 py-1 rounded-full border border-red-200">
+                          <Ban size={14} />
+                          Blocked
+                        </span>
+                      )}
+                    </td>
+
+                    <td className="p-4 text-center pr-6">
+                      <ActionMenu
+                        user={user}
+                        changeStatus={changeStatus}
+                        makeRole={makeRole}
+                        isSelf={isSelf}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 }
 
-function ActionMenu({ user, changeStatus, makeRole }) {
+function ActionMenu({ user, changeStatus, makeRole, isSelf }) {
   const [open, setOpen] = useState(false);
 
+  if (isSelf) {
+    return (
+      <div className="flex justify-center">
+        <button
+          disabled
+          title="You cannot modify your own administrative account rights or status."
+          className="p-2 rounded-xl bg-gray-50 text-gray-400 cursor-not-allowed border border-gray-100 opacity-60 hover:text-amber-500 transition-colors"
+        >
+          <ShieldAlert size={18} />
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative">
+    <div className="relative inline-block text-left">
       <button
         onClick={() => setOpen(!open)}
-        className="
-p-2 rounded-xl
-hover:bg-gray-100
-transition
-"
+        className="p-2 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition-all cursor-pointer border border-transparent hover:border-gray-200/60"
       >
-        <MoreVertical />
+        <MoreVertical size={18} />
       </button>
 
       {open && (
-        <div
-          className="
-absolute right-0
-top-full mt-3
-w-56
-bg-white
-border
-rounded-2xl
-shadow-2xl
-z-999
-p-2
-animate-in
-"
-        >
-          <button
-            onClick={() => {
-              changeStatus(user._id || user.id);
-              setOpen(false);
-            }}
-            className="
-w-full flex gap-3 items-center
-p-3 rounded-xl
-hover:bg-red-50
-"
-          >
-            {user.status === "active" ? (
-              <>
-                <Ban size={18} />
-                Block
-              </>
-            ) : (
-              <>
-                <CheckCircle size={18} />
-                Unblock
-              </>
-            )}
-          </button>
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
 
-          <button
-            onClick={() => {
-              makeRole(user._id || user.id, "volunteer");
+          <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 p-1.5 animate-fade-in origin-top-right">
+            <button
+              onClick={() => {
+                changeStatus(user._id || user.id);
+                setOpen(false);
+              }}
+              className="w-full flex gap-3 items-center p-2.5 rounded-xl text-sm font-semibold transition-colors duration-150 text-gray-700 hover:bg-red-50 hover:text-red-600 cursor-pointer"
+            >
+              {user.status === "active" ? (
+                <>
+                  <Ban size={16} />
+                  Block Account
+                </>
+              ) : (
+                <>
+                  <CheckCircle size={16} />
+                  Unblock Account
+                </>
+              )}
+            </button>
 
-              setOpen(false);
-            }}
-            className="
-w-full flex gap-3
-p-3 rounded-xl
-hover:bg-red-50
-"
-          >
-            <UserRound size={18} />
-            Make Volunteer
-          </button>
+            <div className="h-px bg-gray-100 my-1" />
 
-          <button
-            onClick={() => {
-              makeRole(user._id || user.id, "admin");
+            <button
+              onClick={() => {
+                makeRole(user._id || user.id, "donor");
+                setOpen(false);
+              }}
+              className="w-full flex gap-3 items-center p-2.5 rounded-xl text-sm font-semibold transition-colors duration-150 text-gray-700 hover:bg-red-50 hover:text-red-600 cursor-pointer"
+            >
+              <User size={16} />
+              Make Donor
+            </button>
 
-              setOpen(false);
-            }}
-            className="
-w-full flex gap-3
-p-3 rounded-xl
-hover:bg-red-50
-"
-          >
-            <UserCog size={18} />
-            Make Admin
-          </button>
-        </div>
+            <button
+              onClick={() => {
+                makeRole(user._id || user.id, "volunteer");
+                setOpen(false);
+              }}
+              className="w-full flex gap-3 items-center p-2.5 rounded-xl text-sm font-semibold transition-colors duration-150 text-gray-700 hover:bg-red-50 hover:text-red-600 cursor-pointer"
+            >
+              <UserRound size={16} />
+              Make Volunteer
+            </button>
+
+            <button
+              onClick={() => {
+                makeRole(user._id || user.id, "admin");
+                setOpen(false);
+              }}
+              className="w-full flex gap-3 items-center p-2.5 rounded-xl text-sm font-semibold transition-colors duration-150 text-gray-700 hover:bg-red-50 hover:text-red-600 cursor-pointer"
+            >
+              <UserCog size={16} />
+              Make Admin
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

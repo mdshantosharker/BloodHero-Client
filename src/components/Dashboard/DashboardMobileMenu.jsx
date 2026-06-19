@@ -9,8 +9,6 @@ export default function DashboardMobileMenu() {
 
   return (
     <>
-      {/* Mobile Header Button */}
-
       <div className="md:hidden fixed top-4 left-4 right-4 z-40 flex justify-between items-center bg-white rounded-2xl shadow-lg border border-red-100 px-4 py-3">
         <div>
           <h2 className="font-bold text-red-600 text-lg">BloodHero</h2>
@@ -25,8 +23,6 @@ export default function DashboardMobileMenu() {
           <Menu size={24} />
         </button>
       </div>
-
-      {/* Drawer */}
 
       {open && (
         <>

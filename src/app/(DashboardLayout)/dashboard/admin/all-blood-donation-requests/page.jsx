@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 import { useSession } from "@/lib/auth-client";
-import { deleteMyRequests, doneRequest } from "@/lib/api/donor/action";
+import { doneRequest } from "@/lib/api/donor/action";
 import { toast } from "@heroui/react";
 import { getDonations } from "@/lib/api/users/allUsers";
 
@@ -29,7 +29,7 @@ export default function AllBloodDonationRequestsPage() {
   const [requests, setRequests] = useState([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [requestToDelete, setRequestToDelete] = useState(null);
+  const [requestToCancel, setRequestToCancel] = useState(null);
 
   const fetchAllRequests = async () => {
     try {
@@ -51,23 +51,23 @@ export default function AllBloodDonationRequestsPage() {
       ? requests
       : requests.filter((item) => item.status === filter);
 
-  const openDeleteModal = (item) => {
-    setRequestToDelete(item);
+  const openCancelModal = (item) => {
+    setRequestToCancel(item);
     setIsModalOpen(true);
   };
 
-  const handleDeleteConfirm = async () => {
-    if (!requestToDelete) return;
+  const handleCancelConfirm = async () => {
+    if (!requestToCancel) return;
 
-    toast.promise(deleteMyRequests(requestToDelete._id), {
-      loading: "Processing request...",
+    toast.promise(doneRequest({ status: "canceled" }, requestToCancel._id), {
+      loading: "Canceling request...",
       success: () => {
         setIsModalOpen(false);
-        setRequestToDelete(null);
+        setRequestToCancel(null);
         fetchAllRequests();
-        return `Successfully processed request for ${requestToDelete.recipientName}!`;
+        return `Successfully canceled request for ${requestToCancel.recipientName}!`;
       },
-      error: "Failed to perform action. Try again.",
+      error: "Failed to cancel request. Try again.",
     });
   };
 
@@ -224,7 +224,7 @@ export default function AllBloodDonationRequestsPage() {
                             <CheckCircle size={12} /> Done
                           </button>
                           <button
-                            onClick={() => openDeleteModal(item)}
+                            onClick={() => openCancelModal(item)}
                             className="flex items-center gap-1 text-[11px] bg-red-500 hover:bg-red-600 text-white px-2.5 py-1 rounded-lg transition-all shadow-xs font-semibold cursor-pointer"
                           >
                             <XCircle size={12} /> Cancel
@@ -265,20 +265,16 @@ export default function AllBloodDonationRequestsPage() {
                       {item.status === "pending" ||
                       item.status === "inprogress" ? (
                         <button
-                          onClick={() => openDeleteModal(item)}
+                          onClick={() => openCancelModal(item)}
                           className="p-2 cursor-pointer rounded-xl bg-red-50 text-red-600 hover:bg-red-100 hover:scale-105 active:scale-95 transition-all border border-red-100"
-                          title={
-                            item.status === "inprogress"
-                              ? "Cancel & Delete Request"
-                              : "Delete Request"
-                          }
+                          title="Cancel Request"
                         >
                           <Trash2 size={16} />
                         </button>
                       ) : (
                         <button
                           disabled
-                          title="Completed requests cannot be deleted"
+                          title="Completed or canceled requests cannot be changed"
                           className="p-2 rounded-xl bg-gray-50 text-gray-400 cursor-not-allowed opacity-40 border border-gray-100"
                         >
                           <Trash2 size={16} />
@@ -308,7 +304,7 @@ export default function AllBloodDonationRequestsPage() {
         )}
       </div>
 
-      {isModalOpen && requestToDelete && (
+      {isModalOpen && requestToCancel && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
           <div className="bg-white rounded-3xl p-6 max-w-md w-full border shadow-2xl space-y-6 transform scale-100 transition duration-300">
             <div className="flex items-start gap-4">
@@ -317,16 +313,11 @@ export default function AllBloodDonationRequestsPage() {
               </div>
               <div className="space-y-1">
                 <h3 className="text-xl font-bold text-gray-900 tracking-tight">
-                  {requestToDelete.status === "inprogress"
-                    ? "Cancel & Delete Request?"
-                    : "Delete Donation Request?"}
+                  Cancel Donation Request?
                 </h3>
                 <p className="text-gray-500 text-sm leading-relaxed">
-                  Are you sure you want to{" "}
-                  {requestToDelete.status === "inprogress"
-                    ? "cancel and delete"
-                    : "delete"}{" "}
-                  this request? This action is permanent and cannot be undone.
+                  Are you sure you want to cancel this request? This action will
+                  update the status to "canceled" and cannot be undone.
                 </p>
               </div>
             </div>
@@ -337,19 +328,19 @@ export default function AllBloodDonationRequestsPage() {
                   Recipient Name:
                 </span>
                 <span className="font-bold text-gray-900">
-                  {requestToDelete.recipientName}
+                  {requestToCancel.recipientName}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-500 font-medium">User Email:</span>
                 <span className="text-xs text-gray-600 font-semibold truncate max-w-50">
-                  {requestToDelete.requesterEmail || "N/A"}
+                  {requestToCancel.requesterEmail || "N/A"}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-500 font-medium">Blood Group:</span>
                 <span className="bg-red-100 text-red-600 px-3 py-0.5 rounded-full font-black text-xs">
-                  {requestToDelete.bloodGroup}
+                  {requestToCancel.bloodGroup}
                 </span>
               </div>
               <div className="flex justify-between items-start gap-4">
@@ -357,7 +348,7 @@ export default function AllBloodDonationRequestsPage() {
                   Location:
                 </span>
                 <span className="text-gray-700 font-semibold text-right line-clamp-2 capitalize">
-                  {requestToDelete.address}
+                  {requestToCancel.address}
                 </span>
               </div>
             </div>
@@ -366,19 +357,17 @@ export default function AllBloodDonationRequestsPage() {
               <button
                 onClick={() => {
                   setIsModalOpen(false);
-                  setRequestToDelete(null);
+                  setRequestToCancel(null);
                 }}
                 className="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 active:bg-gray-100 transition cursor-pointer text-sm"
               >
                 Close
               </button>
               <button
-                onClick={handleDeleteConfirm}
+                onClick={handleCancelConfirm}
                 className="px-5 py-2.5 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600 active:bg-red-700 transition shadow-md shadow-red-500/20 cursor-pointer text-sm"
               >
-                {requestToDelete.status === "inprogress"
-                  ? "Yes, Cancel & Delete"
-                  : "Yes, Delete"}
+                Yes, Cancel Request
               </button>
             </div>
           </div>

@@ -15,6 +15,7 @@ export default function Navbar() {
   const { data: session } = useSession();
 
   const [open, setOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const dropdownRef = useRef(null);
 
@@ -32,12 +33,21 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const handleLogoutClick = () => {
+    setOpen(false);
+    setShowModal(true);
+  };
+
   const logout = async () => {
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
+          setShowModal(false);
           router.push("/auth/login");
-          toast.success(user?.name + " Successfully LogOUt");
+          toast.success(user?.name + " Successfully Logout");
+          setTimeout(() => {
+            window.location.reload();
+          }, 400);
         },
       },
     });
@@ -59,7 +69,6 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden md:flex gap-8 font-medium">
-          {/* Home Link */}
           <Link
             href="/"
             className={`relative px-1 py-2 transition-all duration-300 ${
@@ -76,7 +85,6 @@ export default function Navbar() {
             />
           </Link>
 
-          {/* Donation Requests Link */}
           <Link
             href="/donation-requests"
             className={`relative px-1 py-2 transition-all duration-300 ${
@@ -93,7 +101,6 @@ export default function Navbar() {
             />
           </Link>
 
-          {/* Funding Link */}
           {user && (
             <Link
               href="/funding"
@@ -145,7 +152,7 @@ export default function Navbar() {
                 </Link>
 
                 <button
-                  onClick={logout}
+                  onClick={handleLogoutClick}
                   className="w-full cursor-pointer flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-50 text-left text-gray-700 hover:text-red-500 transition-all duration-300"
                 >
                   <LogOut size={18} />
@@ -172,6 +179,34 @@ export default function Navbar() {
           </div>
         )}
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl border p-6 w-full max-w-sm mx-4 transform transition-all animate-scale-in">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">
+              Are you sure?
+            </h3>
+            <p className="text-sm text-gray-500 mb-6">
+              You will be logged out of your account. You need to log in again
+              to access full features.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 rounded-xl text-gray-600 hover:bg-gray-100 font-medium transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={logout}
+                className="px-4 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600 font-medium transition cursor-pointer"
+              >
+                Yes, Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
