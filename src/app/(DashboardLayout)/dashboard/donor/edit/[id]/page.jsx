@@ -40,7 +40,6 @@ export default function EditDonationRequest() {
         const res = await getMyRequest(params?.id);
         if (res) {
           setData(res);
-
           setDistrict(res.recipientDistrict || "");
         }
       }
@@ -133,13 +132,10 @@ export default function EditDonationRequest() {
     };
 
     const res = await updateMyRequests(updatedData, params?.id);
-    console.log(res);
     if (res.modifiedCount > 0) {
       toast.success("Donation Request Updated Successfully!");
       router.push("/dashboard/my-donation-requests");
     }
-
-    // const res = await updateDonation(requestId, { ...updatedData });
   };
 
   if (!mounted || !data) {
@@ -221,7 +217,7 @@ export default function EditDonationRequest() {
           <Select
             label="Recipient District"
             name="district"
-            defaultValue={data?.recipientDistrict || ""}
+            defaultValue={district}
             onChange={(e) => setDistrict(e.target.value)}
             options={Object.keys(upazilaData)}
             required
@@ -232,7 +228,9 @@ export default function EditDonationRequest() {
             name="upazila"
             disabled={!district}
             defaultValue={data?.recipientUpazila || ""}
-            options={district ? upazilaData[district] : []}
+            options={
+              district && upazilaData[district] ? upazilaData[district] : []
+            }
             required
           />
 
@@ -241,7 +239,9 @@ export default function EditDonationRequest() {
             name="hospital"
             disabled={!district}
             defaultValue={data?.hospital || ""}
-            options={district ? hospitalData[district] : []}
+            options={
+              district && hospitalData[district] ? hospitalData[district] : []
+            }
             required
           />
 
@@ -354,10 +354,11 @@ function Input({ label, icon, ...props }) {
 
         <input
           {...props}
-          className={`
-            w-full rounded-xl border border-slate-200 py-3.5 pl-12 pr-4 bg-slate-50 text-sm font-medium text-slate-800 outline-none transition duration-200 
-            ${props.readOnly ? "opacity-65 bg-slate-100 cursor-not-allowed border-slate-200/60" : "focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-500/10"}
-          `}
+          className={`w-full rounded-xl border border-slate-200 py-3.5 pl-12 pr-4 bg-slate-50 text-sm font-medium text-slate-800 outline-none transition duration-200 ${
+            props.readOnly
+              ? "opacity-65 bg-slate-100 cursor-not-allowed border-slate-200/60"
+              : "focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-500/10"
+          }`}
         />
       </div>
     </div>
@@ -390,13 +391,15 @@ function Select({ label, options, ...props }) {
 
         <select
           {...props}
-          className={`
-            w-full rounded-xl border border-slate-200 py-3.5 pl-12 pr-4 bg-slate-50 text-sm font-medium text-slate-800 outline-none transition duration-200 appearance-none cursor-pointer
-            ${props.disabled ? "opacity-50 bg-slate-100 cursor-not-allowed" : "focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-500/10"}
-          `}
+          className={`w-full rounded-xl border border-slate-200 py-3.5 pl-12 pr-4 bg-slate-50 text-sm font-medium text-slate-800 outline-none transition duration-200 appearance-none cursor-pointer ${
+            props.disabled
+              ? "opacity-50 bg-slate-100 cursor-not-allowed"
+              : "focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-500/10"
+          }`}
         >
           <option value="">Select {label}</option>
-          {options.map((item) => (
+
+          {(options || []).map((item) => (
             <option key={item} value={item}>
               {item}
             </option>

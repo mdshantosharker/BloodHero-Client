@@ -40,8 +40,6 @@ export default async function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome */}
-
       <div className="bg-linear-to-r from-red-500 to-rose-600 rounded-3xl p-6 text-white shadow-lg">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center">
@@ -57,8 +55,6 @@ export default async function AdminDashboard() {
           </div>
         </div>
       </div>
-
-      {/* Stats */}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {stats.map((item) => {

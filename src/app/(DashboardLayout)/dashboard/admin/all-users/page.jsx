@@ -10,6 +10,8 @@ import {
   CheckCircle,
   Filter,
   ShieldAlert,
+  Users,
+  Inbox,
 } from "lucide-react";
 
 import { useSession } from "@/lib/auth-client";
@@ -55,13 +57,20 @@ export default function AllUsersPage() {
         ),
       );
 
-      toast.success(`User status changed to ${newStatus}`);
+      if (newStatus === "blocked") {
+        toast.success(`Successfully blocked ${targetUser.name}! 🚫`);
+      } else {
+        toast.success(`Successfully unblocked ${targetUser.name}! ✅`);
+      }
     } catch (error) {
       toast.error(error.message);
     }
   };
 
   const makeRole = async (id, role) => {
+    const targetUser = users.find((user) => (user._id || user.id) === id);
+    if (!targetUser) return;
+
     try {
       await updateUserStatus({ role }, id);
 
@@ -71,7 +80,12 @@ export default function AllUsersPage() {
         ),
       );
 
-      toast.success(`Role changed to ${role} 🎉`);
+      const roleNames = {
+        admin: "an Admin",
+        volunteer: "a Volunteer",
+        donor: "a Donor",
+      };
+      toast.success(`${targetUser.name} is now ${roleNames[role] || role}! 🎉`);
     } catch (error) {
       toast.error(error.message);
     }
@@ -82,9 +96,11 @@ export default function AllUsersPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-100">
+      <div className="flex flex-col items-center justify-center min-h-100 gap-3">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
-        <span className="ml-3 font-bold text-gray-600">Loading Users...</span>
+        <span className="font-bold text-gray-500 text-sm">
+          Loading Users Directory...
+        </span>
       </div>
     );
   }
@@ -92,13 +108,17 @@ export default function AllUsersPage() {
   return (
     <div className="space-y-6 pb-10">
       <div className="bg-linear-to-r from-red-600 via-red-500 to-rose-500 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
-        <div className="flex gap-4 items-center">
+        <div className="absolute right-0 bottom-0 opacity-10 translate-x-6 translate-y-6 pointer-events-none">
+          <Users size={200} />
+        </div>
+        <div className="flex gap-4 items-center relative z-10">
           <div>
-            <h1 className="text-2xl md:text-3xl font-black tracking-tight">
+            <h1 className="text-2xl md:text-3xl font-black tracking-tight flex items-center gap-2">
               All Users 👥
             </h1>
             <p className="text-red-100 text-sm mt-1 font-medium opacity-90">
-              Admin Panel • Manage user accounts, block list, and assign roles.
+              Admin Panel • Manage user accounts, block list, and assign
+              platform roles.
             </p>
           </div>
         </div>
@@ -128,10 +148,11 @@ export default function AllUsersPage() {
 
       <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-200 text-left border-collapse">
+          <table className="w-full min-w-220 text-left border-collapse">
             <thead>
-              <tr className="bg-gray-50/70 border-b border-gray-200/60 text-gray-500 text-xs uppercase tracking-wider font-bold">
-                <th className="p-4 pl-6">User Details</th>
+              <tr className="bg-gray-50/80 border-b border-gray-200/60 text-gray-500 text-xs uppercase tracking-wider font-bold">
+                <th className="p-4 pl-6 w-16 text-center">SL</th>
+                <th className="p-4">User Details</th>
                 <th className="p-4">Email Address</th>
                 <th className="p-4">System Role</th>
                 <th className="p-4">Account Status</th>
@@ -140,85 +161,120 @@ export default function AllUsersPage() {
             </thead>
 
             <tbody className="divide-y divide-gray-100 text-gray-700 text-sm">
-              {filteredUsers.map((user) => {
-                const isSelf =
-                  currentUserEmail && user.email === currentUserEmail;
-
-                return (
-                  <tr
-                    key={user._id || user.id}
-                    className={`transition-colors duration-150 ${
-                      isSelf
-                        ? "bg-amber-50/30 hover:bg-amber-50/50"
-                        : "hover:bg-red-50/20"
-                    }`}
-                  >
-                    <td className="p-4 pl-6">
-                      <div className="flex gap-3 items-center">
-                        <div className="relative">
-                          <img
-                            src={
-                              user.image ||
-                              "https://img.heroui.chat/image/avatar?w=400&h=400&u=3"
-                            }
-                            alt={user.name}
-                            className={`w-11 h-11 rounded-full object-cover border-2 ${
-                              isSelf ? "border-amber-400" : "border-gray-100"
-                            }`}
-                          />
-                          {isSelf && (
-                            <span className="absolute -bottom-1 -right-1 bg-amber-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wide border-2 border-white shadow-xs">
-                              You
-                            </span>
-                          )}
-                        </div>
-
-                        <div>
-                          <p className="font-bold text-gray-900 flex items-center gap-1.5 text-base">
-                            {user.name}
-                          </p>
-                          <p className="text-xs text-red-500 font-bold tracking-wide">
-                            🩸 Blood Group: {user.bloodGroup || "N/A"}
-                          </p>
-                        </div>
+              {filteredUsers.length === 0 ? (
+                /* Empty State Row when no users are found */
+                <tr>
+                  <td colSpan="6" className="p-12 text-center">
+                    <div className="flex flex-col items-center justify-center space-y-3">
+                      <div className="p-4 bg-gray-50 rounded-full text-gray-400 border border-gray-100">
+                        <Inbox size={40} className="stroke-[1.5]" />
                       </div>
-                    </td>
+                      <div className="max-w-xs">
+                        <p className="text-base font-bold text-gray-800">
+                          No {filter !== "all" ? filter : ""} users found
+                        </p>
+                        <p className="text-xs text-gray-400 font-medium mt-1">
+                          {filter === "all"
+                            ? "There are currently no users registered in the system."
+                            : `There are no accounts matching the "${filter}" status filter right now.`}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredUsers.map((user, index) => {
+                  const isSelf =
+                    currentUserEmail && user.email === currentUserEmail;
 
-                    <td className="p-4 font-medium text-gray-600">
-                      {user.email}
-                    </td>
+                  return (
+                    <tr
+                      key={user._id || user.id}
+                      className={`transition-colors duration-150 ${
+                        isSelf
+                          ? "bg-amber-50/40 hover:bg-amber-50/60"
+                          : "hover:bg-red-50/20"
+                      }`}
+                    >
+                      <td className="p-4 pl-6 text-center font-bold text-gray-400">
+                        {index + 1}
+                      </td>
 
-                    <td className="p-4">
-                      <span className="px-3 py-1.5 rounded-xl bg-red-50 text-red-600 font-bold text-xs capitalize border border-red-100/60 shadow-2xs">
-                        {user.role || "donor"}
-                      </span>
-                    </td>
+                      <td className="p-4">
+                        <div className="flex gap-3 items-center">
+                          <div className="relative">
+                            <img
+                              src={
+                                user.image ||
+                                "https://img.heroui.chat/image/avatar?w=400&h=400&u=3"
+                              }
+                              alt={user.name}
+                              className={`w-11 h-11 rounded-full object-cover border-2 ${
+                                isSelf ? "border-amber-400" : "border-gray-100"
+                              }`}
+                            />
+                            {isSelf && (
+                              <span className="absolute -bottom-1 -right-1 bg-amber-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wide border-2 border-white shadow-xs">
+                                You
+                              </span>
+                            )}
+                          </div>
 
-                    <td className="p-4">
-                      {user.status === "active" ? (
-                        <span className="inline-flex gap-1.5 items-center bg-emerald-50 text-emerald-700 font-bold text-xs px-2.5 py-1 rounded-full border border-emerald-200">
-                          <CheckCircle size={14} />
-                          Active
+                          <div>
+                            <p className="font-bold text-gray-900 text-base">
+                              {user.name}
+                            </p>
+                            <p className="text-xs text-red-500 font-bold tracking-wide mt-0.5">
+                              Subscribed Blood: {user.bloodGroup || "N/A"}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="p-4 font-medium text-gray-600">
+                        {user.email}
+                      </td>
+
+                      <td className="p-4">
+                        <span
+                          className={`px-3 py-1.5 rounded-xl font-bold text-xs capitalize border shadow-2xs ${
+                            user.role === "admin"
+                              ? "bg-purple-50 text-purple-700 border-purple-100"
+                              : user.role === "volunteer"
+                                ? "bg-blue-50 text-blue-700 border-blue-100"
+                                : "bg-red-50 text-red-600 border-red-100"
+                          }`}
+                        >
+                          {user.role || "donor"}
                         </span>
-                      ) : (
-                        <span className="inline-flex gap-1.5 items-center bg-red-50 text-red-600 font-bold text-xs px-2.5 py-1 rounded-full border border-red-200">
-                          <Ban size={14} />
-                          Blocked
-                        </span>
-                      )}
-                    </td>
+                      </td>
 
-                    <td className="p-4 text-center pr-6">
-                      <ActionMenu
-                        user={user}
-                        changeStatus={changeStatus}
-                        makeRole={makeRole}
-                        isSelf={isSelf}
-                      />
-                    </td>
-                  </tr>
-                );
-              })}
+                      <td className="p-4">
+                        {user.status === "active" ? (
+                          <span className="inline-flex gap-1.5 items-center bg-emerald-50 text-emerald-700 font-bold text-xs px-2.5 py-1 rounded-full border border-emerald-200">
+                            <CheckCircle size={14} />
+                            Active
+                          </span>
+                        ) : (
+                          <span className="inline-flex gap-1.5 items-center bg-red-50 text-red-600 font-bold text-xs px-2.5 py-1 rounded-full border border-red-200">
+                            <Ban size={14} />
+                            Blocked
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="p-4 text-center pr-6">
+                        <ActionMenu
+                          user={user}
+                          changeStatus={changeStatus}
+                          makeRole={makeRole}
+                          isSelf={isSelf}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
@@ -258,6 +314,7 @@ function ActionMenu({ user, changeStatus, makeRole, isSelf }) {
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
 
           <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 p-1.5 animate-fade-in origin-top-right">
+            {/* Block/Unblock Option */}
             <button
               onClick={() => {
                 changeStatus(user._id || user.id);

@@ -28,10 +28,8 @@ export default function MyDonationRequestsPage() {
   const [filter, setFilter] = useState("all");
   const [requestList, setRequestList] = useState([]);
 
-
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [requestToDelete, setRequestToDelete] = useState(null);
-
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [requestToCancel, setRequestToCancel] = useState(null);
@@ -56,7 +54,6 @@ export default function MyDonationRequestsPage() {
       ? requestList
       : requestList.filter((item) => item.status === filter);
 
- 
   const openDeleteModal = (item) => {
     setRequestToDelete(item);
     setIsDeleteModalOpen(true);
@@ -76,7 +73,6 @@ export default function MyDonationRequestsPage() {
       error: "Failed to delete request. Try again.",
     });
   };
-
 
   const openCancelModal = (item) => {
     setRequestToCancel(item);
@@ -98,7 +94,6 @@ export default function MyDonationRequestsPage() {
     });
   };
 
- 
   const handleMarkAsDone = async (id) => {
     try {
       const res = await doneRequest({ status: "done" }, id);
@@ -118,7 +113,6 @@ export default function MyDonationRequestsPage() {
 
   return (
     <div className="space-y-8 relative pb-10">
-     
       <div className="bg-linear-to-r from-red-600 via-red-500 to-orange-500 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
         <div className="absolute right-0 bottom-0 opacity-10 translate-x-10 translate-y-10 pointer-events-none">
           <HeartPulse size={250} />
@@ -139,7 +133,6 @@ export default function MyDonationRequestsPage() {
         </div>
       </div>
 
-    
       <div className="bg-white rounded-3xl shadow-xs border p-4 flex flex-wrap gap-4 items-center justify-between">
         <div className="flex items-center gap-2.5 text-gray-800 font-bold px-1 text-sm md:text-base">
           <Filter className="text-red-500" size={18} />
@@ -163,7 +156,6 @@ export default function MyDonationRequestsPage() {
         </div>
       </div>
 
-   
       <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
         {filteredRequests.length > 0 ? (
           <div className="overflow-x-auto">
@@ -325,7 +317,6 @@ export default function MyDonationRequestsPage() {
         )}
       </div>
 
-     
       {isDeleteModalOpen && requestToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
           <div className="bg-white rounded-3xl p-6 max-w-md w-full border shadow-2xl space-y-6 transform scale-100 transition duration-300">
@@ -380,7 +371,6 @@ export default function MyDonationRequestsPage() {
         </div>
       )}
 
-     
       {isCancelModalOpen && requestToCancel && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
           <div className="bg-white rounded-3xl p-6 max-w-md w-full border shadow-2xl space-y-6 transform scale-100 transition duration-300">

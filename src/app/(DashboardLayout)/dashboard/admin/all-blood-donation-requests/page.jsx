@@ -237,14 +237,14 @@ export default function AllBloodDonationRequestsPage() {
                   <td className="p-4 text-center pr-6">
                     <div className="flex gap-2 justify-center">
                       <Link
-                        href={`/dashboard/donor/view/${item._id}`}
+                        href={`/donation-requests/${item._id}`}
                         className="p-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 hover:scale-105 active:scale-95 transition-all border border-blue-100"
                         title="View Details"
                       >
                         <Eye size={16} />
                       </Link>
 
-                      {item.status === "pending" ? (
+                      {/* {item.status === "pending" ? (
                         <Link
                           href={`/dashboard/donor/edit/${item._id}`}
                           className="p-2 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 hover:scale-105 active:scale-95 transition-all border border-amber-100"
@@ -260,7 +260,7 @@ export default function AllBloodDonationRequestsPage() {
                         >
                           <Edit size={16} />
                         </button>
-                      )}
+                      )} */}
 
                       {item.status === "pending" ||
                       item.status === "inprogress" ? (

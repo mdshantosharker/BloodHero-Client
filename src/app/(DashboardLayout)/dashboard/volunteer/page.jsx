@@ -1,35 +1,57 @@
 "use client";
 
-import { Users, Droplets, Wallet, HeartPulse } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Users, HandCoins, HeartPulse } from "lucide-react";
+
+import { useSession } from "@/lib/auth-client";
+import { getAllUsers, getDonations } from "@/lib/api/users/allUsers";
 
 export default function VolunteerDashboard() {
+  const { data: session } = useSession();
+  const user = session?.user;
+
+  const [users, setUsers] = useState([]);
+  const [bloodRequests, setBloodRequests] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const usersData = await getAllUsers();
+        const donationsData = await getDonations();
+
+        setUsers(usersData || []);
+        setBloodRequests(donationsData || []);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const stats = [
     {
-      title: "Total Donors",
-      count: "120",
-      icon: <Users size={32} />,
-      desc: "Active blood donors",
+      title: "Total Users",
+      count: users.length,
+      icon: Users,
+      desc: "Registered Donors",
     },
-
     {
       title: "Total Funding",
-      count: "৳ 25,000",
-      icon: <Wallet size={32} />,
-      desc: "Organization support",
+      count: "$4500",
+      icon: HandCoins,
+      desc: "Donation Amount",
     },
-
     {
       title: "Blood Requests",
-      count: "85",
-      icon: <Droplets size={32} />,
-      desc: "Donation requests",
+      count: bloodRequests.length,
+      icon: HeartPulse,
+      desc: "Total Requests",
     },
   ];
 
   return (
     <div className="space-y-8">
-      {/* Welcome */}
-
       <div className="rounded-[30px] bg-linear-to-r from-red-500 to-rose-600 p-8 text-white shadow-xl">
         <div className="flex items-center gap-5">
           <div className="w-20 h-20 rounded-3xl bg-white/20 flex items-center justify-center backdrop-blur">
@@ -46,28 +68,28 @@ export default function VolunteerDashboard() {
         </div>
       </div>
 
-      {/* Cards */}
-
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {stats.map((item, index) => (
-          <div
-            key={index}
-            className="bg-white rounded-3xl border border-red-100 shadow-lg p-6 hover:-translate-y-1 transition"
-          >
-            <div className="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center">
-              {item.icon}
+        {stats.map((item, index) => {
+          const Icon = item.icon;
+
+          return (
+            <div
+              key={index}
+              className="bg-white rounded-3xl border border-red-100 shadow-lg p-6 hover:-translate-y-1 transition"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center">
+                <Icon size={28} />
+              </div>
+
+              <h2 className="mt-5 text-gray-500 font-medium">{item.title}</h2>
+
+              <h1 className="text-3xl font-bold mt-1">{item.count}</h1>
+
+              <p className="text-sm text-gray-400 mt-2">{item.desc}</p>
             </div>
-
-            <h2 className="mt-5 text-gray-500 font-medium">{item.title}</h2>
-
-            <h1 className="text-3xl font-bold mt-1">{item.count}</h1>
-
-            <p className="text-sm text-gray-400 mt-2">{item.desc}</p>
-          </div>
-        ))}
+          );
+        })}
       </div>
-
-      {/* Volunteer Info */}
 
       <div className="bg-white rounded-3xl border border-red-100 shadow-lg p-6">
         <h2 className="text-xl font-bold">Volunteer Responsibilities</h2>

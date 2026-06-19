@@ -10,6 +10,7 @@ import {
   HeartPulse,
   AlertTriangle,
   CheckCircle,
+  XCircle,
   Mail,
 } from "lucide-react";
 
@@ -44,10 +45,13 @@ export default function VolunteerBloodDonationRequestsPage() {
       ? requests
       : requests.filter((item) => item.status === filter);
 
-  const handleMarkAsDone = async (id) => {
+  const handleMarkAsDone = async (id, recipientName) => {
     try {
       const res = await doneRequest({ status: "done" }, id);
-      toast.success("Request successfully marked as Done! 🎉");
+
+      toast.success(
+        `${recipientName}'s request successfully marked as Done! 🎉`,
+      );
 
       setRequests((prev) =>
         prev.map((item) =>
@@ -57,6 +61,23 @@ export default function VolunteerBloodDonationRequestsPage() {
     } catch (error) {
       console.error("Error updating status:", error);
       toast.error("Failed to update status.");
+    }
+  };
+
+  const handleMarkAsCanceled = async (id, recipientName) => {
+    try {
+      const res = await doneRequest({ status: "canceled" }, id);
+
+      toast.success(`${recipientName}'s request successfully Canceled! ❌`);
+
+      setRequests((prev) =>
+        prev.map((item) =>
+          item._id === id ? { ...item, status: "canceled" } : item,
+        ),
+      );
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast.error("Failed to cancel request.");
     }
   };
 
@@ -111,17 +132,17 @@ export default function VolunteerBloodDonationRequestsPage() {
           <table className="min-w-237.5 w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50/70 border-b border-gray-200/60 text-gray-500 text-xs uppercase tracking-wider font-bold">
-                <th className="p-4 pl-6 w-16 text-center">SL</th>
-                <th className="p-4">Recipient Info</th>
-                <th className="p-4">Location (Address)</th>
-                <th className="p-4">Date & Time</th>
-                <th className="p-4">Blood Group</th>
-                <th className="p-4">Status & Control</th>
-                <th className="p-4 text-center pr-6">Actions</th>
+                <th className="p-4 pl-6 w-16 text-center text-xl">SL</th>
+                <th className="p-4 text-xl">Recipient Info</th>
+                <th className="p-4 text-xl">Location (Address)</th>
+                <th className="p-4 text-xl">Date & Time</th>
+                <th className="p-4 text-xl">Blood Group</th>
+                <th className="p-4 text-xl">Status & Control</th>
+                <th className="p-4 text-xl text-center pr-6">Actions</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-gray-100 text-gray-700 text-sm">
+            <tbody className="divide-y divide-gray-100  text-gray-700 text-sm">
               {filteredRequests.map((item, index) => (
                 <tr
                   key={item._id}
@@ -132,7 +153,7 @@ export default function VolunteerBloodDonationRequestsPage() {
                   </td>
 
                   <td className="p-4">
-                    <div className="flex flex-col gap-0.5">
+                    <div className="flex flex-col  gap-0.5">
                       <span className="font-bold text-gray-900 text-base">
                         {item.recipientName}
                       </span>
@@ -170,16 +191,16 @@ export default function VolunteerBloodDonationRequestsPage() {
                     </div>
                   </td>
 
-                  <td className="p-4">
-                    <span className="bg-red-50 text-red-600 px-3.5 py-1.5 rounded-xl font-black text-xs tracking-wider border border-red-100 shadow-2xs">
+                  <td className="p-4 ">
+                    <span className="bg-red-50 flex flex-col justify-center items-center text-red-600 px-3.5 py-1.5 rounded-xl font-black text-xs tracking-wider border border-red-100 shadow-2xs">
                       {item.bloodGroup}
                     </span>
                   </td>
 
                   <td className="p-4">
-                    <div className="flex flex-col gap-2 items-start">
+                    <div className="flex flex-col gap-2 items-center">
                       <span
-                        className={`px-3 py-1 rounded-full capitalize text-xs font-bold border ${
+                        className={`px-3 py-1  rounded-full capitalize text-xs font-bold border ${
                           item.status === "pending"
                             ? "bg-amber-50 text-amber-700 border-amber-200"
                             : item.status === "inprogress"
@@ -193,12 +214,23 @@ export default function VolunteerBloodDonationRequestsPage() {
                       </span>
 
                       {item.status === "inprogress" && (
-                        <div className="flex gap-1.5 mt-0.5 animate-fade-in">
+                        <div className="flex  gap-1.5 mt-0.5 animate-fade-in">
                           <button
-                            onClick={() => handleMarkAsDone(item._id)}
+                            onClick={() =>
+                              handleMarkAsDone(item._id, item.recipientName)
+                            }
                             className="flex items-center gap-1 text-[11px] bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg transition-all shadow-xs font-semibold cursor-pointer"
                           >
-                            <CheckCircle size={12} /> Mark Done
+                            <CheckCircle size={12} /> Done
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              handleMarkAsCanceled(item._id, item.recipientName)
+                            }
+                            className="flex items-center gap-1 text-[11px] bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded-lg transition-all shadow-xs font-semibold cursor-pointer"
+                          >
+                            <XCircle size={12} /> Cancel
                           </button>
                         </div>
                       )}
@@ -208,7 +240,7 @@ export default function VolunteerBloodDonationRequestsPage() {
                   <td className="p-4 text-center pr-6">
                     <div className="flex gap-2 justify-center">
                       <Link
-                        href={`/dashboard/donor/view/${item._id}`}
+                        href={`/donation-requests/${item._id}`}
                         className="p-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 hover:scale-105 active:scale-95 transition-all border border-blue-100"
                         title="View Details"
                       >
