@@ -19,8 +19,9 @@ import {
 } from "lucide-react";
 
 import { useSession } from "@/lib/auth-client";
-import { toast } from "@heroui/react";
+
 import { doneRequest, inProgress } from "@/lib/api/donor/action";
+import { toast } from "@heroui/react";
 
 export default function DonationDetailsClient({ initialData, requestId }) {
   const { data: session, isPending: authLoading } = useSession();
@@ -30,12 +31,12 @@ export default function DonationDetailsClient({ initialData, requestId }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (!authLoading && !session?.user) {
-      toast.error("Please login first to view request details! 🔒");
-      router.push("/login");
-    }
-  }, [session, authLoading, router]);
+  // useEffect(() => {
+  //   if (!authLoading && !session?.user) {
+  //     toast.error("Please login first to view request details! 🔒");
+  //     router.push("/login");
+  //   }
+  // }, [session, authLoading, router]);
 
   const handleConfirmDonation = async (e) => {
     e.preventDefault();
@@ -49,7 +50,7 @@ export default function DonationDetailsClient({ initialData, requestId }) {
 
       setRequest((prev) => ({ ...prev, status: "inprogress" }));
     } catch (error) {
-      console.error("Error updating donation status:", error);
+      // console.error("Error updating donation status:", error);
       toast.error("Failed to confirm donation. Please try again.");
     } finally {
       setIsSubmitting(false);

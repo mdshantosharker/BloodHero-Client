@@ -48,12 +48,12 @@ export default function PublicBloodDonationRequestsPage() {
     fetchPendingRequests();
   }, []);
 
-  const handleViewDetails = (requestId) => {
-    if (!session?.user) {
-      toast.error("Please login first to view details!");
-      router.push("/login");
-    }
-  };
+  // const handleViewDetails = (requestId) => {
+  //   if (!session?.user) {
+  //     toast.error("Please login first to view details!");
+  //     router.push("/login");
+  //   }
+  // };
 
   const handleViewMore = () => {
     setVisibleCount(requests.length);
@@ -172,7 +172,7 @@ export default function PublicBloodDonationRequestsPage() {
                 <Link href={`/donation-requests/${item._id}`}>
                   <div className="pt-5 mt-5 border-t border-gray-100 flex items-center justify-between gap-4">
                     <button
-                      onClick={() => handleViewDetails(item._id)}
+                      // onClick={() => handleViewDetails(item._id)}
                       className="w-full bg-gray-900 group-hover:bg-red-500 text-white py-3.5 px-4 rounded-xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-gray-900/5 group-hover:shadow-red-500/20"
                     >
                       <Eye
