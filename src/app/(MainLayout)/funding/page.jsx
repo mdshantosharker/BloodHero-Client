@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Wallet,
   Mail,
@@ -8,10 +8,16 @@ import {
   X,
   CheckCircle,
   AlertCircle,
+  HeartHandshake,
+  Calendar,
+  Layers,
+  Heart,
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
+import { paymentsHistory } from "@/lib/api/payments/history";
 
 const FundingPage = () => {
+  const [history, setHistory] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [error, setError] = useState("");
@@ -20,6 +26,19 @@ const FundingPage = () => {
   const { data: session } = useSession();
   const user = session?.user;
   const ownerEmail = user?.email;
+
+  useEffect(() => {
+    const historyData = async () => {
+      const res = await paymentsHistory();
+      setHistory(res || []);
+    };
+    historyData();
+  }, []);
+
+  const totalDonationsAmount = history.reduce(
+    (acc, item) => acc + (item.amount || 0),
+    0,
+  );
 
   const handleAmountChange = (val) => {
     setAmount(val);
@@ -71,25 +90,161 @@ const FundingPage = () => {
   };
 
   return (
-    <div className="space-y-6 p-6 max-w-4xl mx-auto">
-      <div className="bg-linear-to-r from-red-500 to-rose-600 rounded-3xl p-8 text-white shadow-lg relative overflow-hidden">
-        <div className="relative z-10">
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            Support BloodHero 💝
-          </h1>
-          <p className="text-red-100 mt-2 max-w-md">
-            Your small contribution can save lives. Help us maintain our
-            platform and extend our reach to more donors.
-          </p>
-
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="mt-6 px-6 py-3 bg-white text-red-600 font-bold rounded-2xl shadow-md hover:bg-red-50 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
-          >
-            <Wallet size={20} />
-            <span>Donate Now</span>
-          </button>
+    <div className="space-y-8 p-6 max-w-4xl mx-auto">
+      <div className="bg-linear-to-r from-red-600 via-rose-600 to-red-500 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden border border-red-400/20">
+        <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute right-12 -bottom-5 opacity-10 pointer-events-none hidden md:block">
+          <HeartHandshake size={220} />
         </div>
+
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+          <div className="space-y-2 max-w-md">
+            <h1 className="text-3xl font-extrabold flex items-center gap-2 tracking-tight">
+              Support BloodHero{" "}
+              <Heart
+                size={28}
+                className="fill-white text-white animate-pulse shrink-0"
+              />
+            </h1>
+            <p className="text-red-50/90 text-sm leading-relaxed">
+              Your small contribution keeps our servers alive, funds emergency
+              blood requests, and helps us expand our volunteer reach. Let's
+              save lives together!
+            </p>
+          </div>
+
+          <div className="shrink-0 flex items-center">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="group relative w-full md:w-auto px-8 py-4 bg-white text-red-600 font-black text-base rounded-2xl transition-all duration-300 hover:scale-[1.03] active:scale-95 shadow-[0_10px_25px_-5px_rgba(255,255,255,0.4)] hover:shadow-[0_15px_30px_-5px_rgba(255,255,255,0.6)] flex items-center justify-center gap-3 cursor-pointer overflow-hidden border-2 border-white"
+            >
+              <div className="absolute inset-0 w-1/2 h-full bg-linear-to-r from-white/0 via-white/30 to-white/0 skew-x-[-25deg] translate-x-[-150%] group-hover:translate-x-[250%] transition-transform duration-1000 ease-out" />
+
+              <div className="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shadow-xs group-hover:bg-red-500 group-hover:text-white transition-colors duration-300">
+                <Wallet size={18} className="animate-bounce" />
+              </div>
+              <span className="tracking-wide uppercase text-sm">
+                Donate Now
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Total Fund Raised
+            </p>
+            <h3 className="text-2xl font-black text-gray-800">
+              ৳{totalDonationsAmount.toLocaleString()}
+            </h3>
+          </div>
+          <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+            <DollarSign size={24} />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Total Contributions
+            </p>
+            <h3 className="text-2xl font-black text-gray-800">
+              {history.length} Times
+            </h3>
+          </div>
+          <div className="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center">
+            <HeartHandshake size={24} />
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+        <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+            <Layers size={18} className="text-red-500" />
+            <span>Recent Contributions</span>
+          </h2>
+          <span className="text-xs font-bold bg-gray-100 text-gray-600 px-2.5 py-1 rounded-lg">
+            Live History
+          </span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-50/70 border-b border-gray-200/60 text-gray-500 text-xs uppercase tracking-wider font-bold">
+                <th className="p-4 pl-6 w-16 text-center">SL</th>
+                <th className="p-4">Donor Information</th>
+                <th className="p-4">Date</th>
+                <th className="p-4 text-right pr-6">Amount</th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-gray-100 text-gray-700 text-sm">
+              {history.map((item, index) => (
+                <tr
+                  key={item._id || index}
+                  className="hover:bg-red-50/20 transition-colors duration-200"
+                >
+                  <td className="p-4 pl-6 text-center font-bold text-gray-400">
+                    {index + 1}
+                  </td>
+
+                  <td className="p-4">
+                    <div className="flex flex-col">
+                      <span className="font-bold text-gray-900">
+                        {item.name || "Generous Donor"}
+                      </span>
+                      <span className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                        <Mail size={12} />
+                        {item.email || "anonymous@bloodhero.com"}
+                      </span>
+                    </div>
+                  </td>
+
+                  <td className="p-4 text-gray-600 font-medium">
+                    <div className="flex items-center gap-1.5 text-gray-500">
+                      <Calendar size={14} />
+                      <span>
+                        {item.createdAt
+                          ? new Date(item.createdAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              },
+                            )
+                          : "N/A"}
+                      </span>
+                    </div>
+                  </td>
+
+                  <td className="p-4 text-right pr-6">
+                    <span className="bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-xl font-bold text-sm border border-emerald-100 inline-flex items-center gap-0.5">
+                      + ৳{item.amount || 0}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {history.length === 0 && (
+          <div className="text-center py-16 text-gray-400 bg-gray-50/30 flex flex-col items-center justify-center gap-2">
+            <HeartHandshake size={40} className="text-gray-300 animate-pulse" />
+            <span className="font-bold text-gray-700 text-base">
+              No Donations Yet
+            </span>
+            <span className="text-xs text-gray-400">
+              Be the first one to support our platform!
+            </span>
+          </div>
+        )}
       </div>
 
       {isModalOpen && (
@@ -121,7 +276,7 @@ const FundingPage = () => {
                 </label>
                 <input
                   type="email"
-                  value={ownerEmail}
+                  value={ownerEmail || ""}
                   readOnly
                   className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-500 font-medium text-sm focus:outline-hidden cursor-not-allowed"
                 />
