@@ -5,6 +5,7 @@ import { Users, HandCoins, HeartPulse } from "lucide-react";
 
 import { useSession } from "@/lib/auth-client";
 import { getAllUsers, getDonations } from "@/lib/api/users/allUsers";
+import { paymentsHistory } from "@/lib/api/payments/history";
 
 export default function VolunteerDashboard() {
   const { data: session } = useSession();
@@ -12,15 +13,17 @@ export default function VolunteerDashboard() {
 
   const [users, setUsers] = useState([]);
   const [bloodRequests, setBloodRequests] = useState([]);
-
+  const [history, setHistory] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
       try {
         const usersData = await getAllUsers();
         const donationsData = await getDonations();
+        const res = await paymentsHistory();
 
         setUsers(usersData || []);
         setBloodRequests(donationsData || []);
+        setHistory(res || []);
       } catch (error) {
         console.error(error);
       }
@@ -28,6 +31,14 @@ export default function VolunteerDashboard() {
 
     fetchData();
   }, []);
+
+  const totalDonationsAmount = history.reduce(
+    (acc, item) => acc + (item.amount || 0),
+    0,
+  );
+
+  console.log(history);
+  console.log(bloodRequests);
 
   const stats = [
     {
@@ -38,7 +49,7 @@ export default function VolunteerDashboard() {
     },
     {
       title: "Total Funding",
-      count: "$4500",
+      count: totalDonationsAmount,
       icon: HandCoins,
       desc: "Donation Amount",
     },

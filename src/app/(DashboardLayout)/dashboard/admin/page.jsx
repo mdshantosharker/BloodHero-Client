@@ -3,16 +3,22 @@ import { Users, HandCoins, HeartPulse, ShieldCheck } from "lucide-react";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { getAllUsers, getDonations } from "@/lib/api/users/allUsers";
+import { paymentsHistory } from "@/lib/api/payments/history";
 
 export default async function AdminDashboard() {
   const session = await auth.api.getSession({
-    headers: await headers(), // you need to pass the headers object.
+    headers: await headers(),
   });
 
   const user = session?.user;
 
   const data = await getAllUsers();
   const bloodData = await getDonations();
+  const res = await paymentsHistory();
+  const totalDonationsAmount = res.reduce(
+    (acc, item) => acc + (item.amount || 0),
+    0,
+  );
   // console.log(data);
 
   const stats = [
@@ -25,7 +31,7 @@ export default async function AdminDashboard() {
 
     {
       title: "Total Funding",
-      count: "$4500",
+      count: totalDonationsAmount,
       icon: HandCoins,
       desc: "Donation Amount",
     },
