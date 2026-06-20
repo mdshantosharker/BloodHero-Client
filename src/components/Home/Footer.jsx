@@ -3,10 +3,8 @@ import { HeartPulse, Mail, Phone, MapPin } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-red-950 text-white mt-20">
+    <footer className="bg-red-950 text-white">
       <div className="max-w-7xl mx-auto px-5 py-12 grid grid-cols-1 md:grid-cols-4 gap-10">
-        {/* Brand */}
-
         <div>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center">
@@ -21,8 +19,6 @@ export default function Footer() {
             donation can save a life.
           </p>
         </div>
-
-        {/* Quick Links */}
 
         <div>
           <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
@@ -54,8 +50,6 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Donation */}
-
         <div>
           <h3 className="text-lg font-semibold mb-4">Donate Blood</h3>
 
@@ -69,8 +63,6 @@ export default function Footer() {
             <li>Blood Groups</li>
           </ul>
         </div>
-
-        {/* Contact */}
 
         <div>
           <h3 className="text-lg font-semibold mb-4">Contact</h3>
@@ -94,7 +86,6 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Bottom */}
 
       <div className="border-t border-red-800">
         <div className="max-w-7xl mx-auto px-5 py-5 text-center text-sm text-red-200">
