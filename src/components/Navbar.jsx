@@ -62,6 +62,7 @@ export default function Navbar() {
   const navItems = [
     { label: "Home", path: "/" },
     { label: "Donation Requests", path: "/donation-requests" },
+    { label: "Search Now", path: "/search" },
     ...(user ? [{ label: "Funding", path: "/funding" }] : []),
   ];
 
@@ -302,7 +303,6 @@ export default function Navbar() {
         </AnimatePresence>
       </nav>
 
-     
       <AnimatePresence>
         {showModal && (
           <div className="fixed inset-0 z-99999 flex items-center justify-center p-4 transform-gpu">
