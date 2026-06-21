@@ -12,7 +12,7 @@ import {
 
 import { useSession } from "@/lib/auth-client";
 import { getAllUsers2, getDonations } from "@/lib/api/users/allUsers";
-import { paymentsHistory } from "@/lib/api/payments/history";
+import { paymentsHistory, paymentsHistory2 } from "@/lib/api/payments/history";
 
 export default function VolunteerDashboard() {
   const { data: session } = useSession();
@@ -27,7 +27,7 @@ export default function VolunteerDashboard() {
       try {
         const usersData = await getAllUsers2();
         const donationsData = await getDonations();
-        const res = await paymentsHistory();
+        const res = await paymentsHistory2();
 
         setUsers(usersData || []);
         setBloodRequests(donationsData || []);

@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 import { useSession } from "@/lib/auth-client";
-import { getAllRequest } from "@/lib/api/donor/server";
+import {getAllRequest2 } from "@/lib/api/donor/server";
 import { deleteMyRequests, doneRequest } from "@/lib/api/donor/action";
 
 import { toast } from "@heroui/react";
@@ -34,7 +34,7 @@ export default function DashboardHomePage() {
 
   const fetchRequests = async () => {
     if (!user?.email) return;
-    const data = await getAllRequest(user.email);
+    const data = await getAllRequest2(user.email);
     setRequests(data || []);
   };
 

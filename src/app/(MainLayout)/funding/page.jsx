@@ -15,7 +15,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
-import { paymentsHistory } from "@/lib/api/payments/history";
+import { paymentsHistory, paymentsHistory2 } from "@/lib/api/payments/history";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 export default function FundingPage() {
@@ -31,7 +31,10 @@ export default function FundingPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
+
   const [totalContributions, setTotalContributions] = useState(0);
+
+  const [allFunds, setAllFunds] = useState(0);
 
   const { data: session } = useSession();
   const user = session?.user;
@@ -42,14 +45,34 @@ export default function FundingPage() {
       setLoading(true);
       try {
         const res = await paymentsHistory(page);
+
+        const resData = await paymentsHistory2();
+
         if (res && res.data) {
           setHistory(res.data);
           setTotalPages(res.totalPage || 1);
-          setTotalContributions(res.totalData || 0);
         } else {
           setHistory(Array.isArray(res) ? res : []);
           setTotalPages(1);
-          setTotalContributions(Array.isArray(res) ? res.length : 0);
+        }
+
+        if (Array.isArray(resData)) {
+          const totalMoney = resData.reduce(
+            (acc, item) => acc + (item.amount || 0),
+            0,
+          );
+          setAllFunds(totalMoney);
+          setTotalContributions(resData.length);
+        } else if (resData && typeof resData === "object") {
+          const dataArray = resData.data || Object.values(resData);
+          if (Array.isArray(dataArray)) {
+            const totalMoney = dataArray.reduce(
+              (acc, item) => acc + (item.amount || 0),
+              0,
+            );
+            setAllFunds(totalMoney);
+            setTotalContributions(dataArray.length);
+          }
         }
       } catch (err) {
         console.error("Failed to load history", err);
@@ -59,11 +82,6 @@ export default function FundingPage() {
     };
     historyData();
   }, [page]);
-
-  const totalDonationsAmount = history.reduce(
-    (acc, item) => acc + (item.amount || 0),
-    0,
-  );
 
   const handlePageChange = (newPage) => {
     if (newPage < 1 || newPage > totalPages) return;
@@ -76,7 +94,7 @@ export default function FundingPage() {
     setAmount(val);
     if (!val) {
       setError("");
-    } else if (isNaN(val) || Number(val) < 100) {
+    } else if (isNaN(Number(val)) || Number(val) < 100) {
       setError("Minimum donation amount is ৳100 BDT");
     } else {
       setError("");
@@ -85,34 +103,16 @@ export default function FundingPage() {
 
   const handlePaySubmit = async (e) => {
     e.preventDefault();
-
-    if (!amount || isNaN(amount) || Number(amount) < 100) {
+    if (!amount || isNaN(Number(amount)) || Number(amount) < 100) {
       setError("Minimum donation amount is ৳100 BDT");
       return;
     }
-
     try {
-      const response = await fetch("/api/checkout_sessions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          amount: Number(amount),
-          email: ownerEmail,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        setError("Something went wrong. Please try again.");
-      }
-    } catch (error) {
-      console.error("Payment Error:", error);
-      setError("Failed to initiate payment. Check your connection.");
+      console.log("Processing payment...", amount);
+      setIsModalOpen(false);
+      setAmount("");
+    } catch (err) {
+      console.error("Payment failed", err);
     }
   };
 
@@ -171,7 +171,7 @@ export default function FundingPage() {
                 Total Fund Raised
               </p>
               <h3 className="text-2xl font-bold text-gray-800">
-                ৳{totalDonationsAmount.toLocaleString()}
+                ৳{allFunds.toLocaleString()}
               </h3>
             </div>
             <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
@@ -229,7 +229,7 @@ export default function FundingPage() {
               <tbody className="divide-y divide-gray-100 text-gray-700 text-sm bg-white">
                 {loading ? (
                   <tr>
-                    <td colSpan="4" className="text-center py-12">
+                    <td colSpan={4} className="text-center py-12">
                       <div className="flex justify-center items-center gap-2">
                         <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-red-500"></div>
                         <span className="text-gray-500 font-medium">
@@ -241,7 +241,7 @@ export default function FundingPage() {
                 ) : history.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="4"
+                      colSpan={4}
                       className="text-center py-16 text-gray-400 bg-gray-50/30"
                     >
                       <div className="flex flex-col items-center justify-center gap-2">
