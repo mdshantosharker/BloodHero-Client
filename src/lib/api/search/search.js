@@ -11,9 +11,7 @@ export const searchDonationRequests = async ({
   if (district) params.append("district", district);
   if (upazila) params.append("upazila", upazila);
 
-  const res = await serverFetch(
-    `/donationRequests/search?${params.toString()}`,
-  );
+  const res = await serverFetch(`/donor/search?${params.toString()}`);
 
   return res;
 };

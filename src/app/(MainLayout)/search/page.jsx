@@ -2,16 +2,12 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
 import {
   Search,
   Droplet,
   MapPin,
   Compass,
   Users,
-  Calendar,
-  Clock,
-  Eye,
   ChevronDown,
   AlertCircle,
   Inbox,
@@ -81,6 +77,8 @@ export default function SearchPage() {
       setIsLoading(false);
     }
   };
+
+  console.log(donors);
 
   const handleViewMore = () => {
     setVisibleCount((prev) => prev + 6);
@@ -331,94 +329,121 @@ export default function SearchPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="space-y-10"
+                className="space-y-12"
               >
+                <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+                  <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
+                    <Users className="text-red-500" size={22} />
+                    Matching Donors Found ({donors.length})
+                  </h2>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {donors.slice(0, visibleCount).map((item, idx) => (
                     <motion.div
-                      key={item._id || idx}
-                      initial={{ opacity: 0, y: 20 }}
+                      key={item._id?.$oid || item.id || idx}
+                      initial={{ opacity: 0, y: 30 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: idx * 0.05 }}
-                      className="bg-white border border-gray-100 rounded-[2rem] p-6 shadow-sm hover:shadow-2xl hover:shadow-red-500/5 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between relative group"
+                      className="bg-white rounded-[24px] border border-slate-100 p-6 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(244,63,94,0.08)] hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between relative group overflow-hidden"
                     >
-                      <div className="absolute top-6 right-6 z-10">
-                        <span className="bg-red-50 text-red-600 font-black text-sm tracking-wider px-4 py-2.5 rounded-2xl border border-red-100 flex items-center justify-center min-w-14 shadow-sm group-hover:bg-red-500 group-hover:text-white group-hover:border-red-500 group-hover:scale-110 transition-all duration-300">
-                          {item.bloodGroup}
-                        </span>
-                      </div>
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-linear-to-bl from-red-500/10 to-transparent rounded-bl-full pointer-events-none transition-all duration-300 group-hover:scale-110" />
 
-                      <div className="space-y-5">
-                        <div className="pr-16">
-                          <span className="text-[10px] font-bold text-red-500/80 tracking-widest uppercase block mb-1">
-                            Urgent Recipient
+                      <div>
+                        <div className="flex items-start justify-between mb-5">
+                          <div className="flex items-center gap-3.5">
+                            {item.image ? (
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="w-14 h-14 rounded-2xl object-cover border-2 border-slate-100 shadow-xs group-hover:border-red-200 transition-colors duration-300"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src =
+                                    "https://ui-avatars.com/api/?name=" +
+                                    (item.name || "Donor");
+                                }}
+                              />
+                            ) : (
+                              <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-slate-100 to-slate-200/60 flex items-center justify-center font-bold text-slate-700 text-xl border border-white shadow-inner">
+                                {item.name
+                                  ? item.name.charAt(0).toUpperCase()
+                                  : "D"}
+                              </div>
+                            )}
+
+                            <div>
+                              <h3 className="text-lg font-black text-slate-800 tracking-tight group-hover:text-red-500 transition-colors duration-200 line-clamp-1 capitalize">
+                                {item.name || "Anonymous Donor"}
+                              </h3>
+
+                              {item.status === "active" ? (
+                                <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider mt-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />{" "}
+                                  Active Donor
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-600 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider mt-1">
+                                  Inactive
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <span className="bg-red-50 text-red-600 font-black text-base tracking-wide px-4 py-2 rounded-xl border border-red-100/80 flex items-center justify-center min-w-13.5 shadow-xs group-hover:bg-red-500 group-hover:text-white group-hover:border-red-500 group-hover:scale-105 transition-all duration-300">
+                            {item.bloodGroup || "N/A"}
                           </span>
-                          <h3 className="text-xl font-bold text-gray-900 group-hover:text-red-600 transition-colors duration-200 line-clamp-1 capitalize">
-                            {item.recipientName || item.requesterName}
-                          </h3>
                         </div>
 
-                        <div className="bg-gray-50/70 group-hover:bg-red-50/20 rounded-2xl p-4 space-y-3.5 border border-gray-100/50 group-hover:border-red-100/30 transition-all duration-300">
-                          <div className="flex items-start gap-3">
-                            <div className="p-1.5 bg-white rounded-lg shadow-xs border border-gray-100 text-red-500">
-                              <MapPin size={15} />
+                        <div className="space-y-3 bg-slate-50/60 group-hover:bg-red-50/10 rounded-2xl p-4 border border-slate-100 group-hover:border-red-100/30 transition-all duration-300">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-white rounded-xl shadow-xs border border-slate-100 text-red-500">
+                              <MapPin size={14} />
                             </div>
                             <div className="space-y-0.5">
-                              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                                Location
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                                Donor's Area
                               </span>
-                              <span className="text-sm font-semibold text-gray-700 line-clamp-1 capitalize">
-                                {item.recipientUpazila
-                                  ? `${item.recipientUpazila}, `
-                                  : ""}
-                                {item.recipientDistrict || item.address}
+                              <span className="text-xs font-bold text-slate-700 capitalize">
+                                {item.upazila ? `${item.upazila}, ` : ""}
+                                {item.district || "Unknown District"}
                               </span>
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-2.5">
-                              <div className="p-1.5 bg-white rounded-lg shadow-xs border border-gray-100 text-gray-400">
-                                <Calendar size={14} />
-                              </div>
-                              <div className="space-y-0.5">
-                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                                  Required Date
-                                </span>
-                                <span className="text-xs font-bold text-gray-700">
-                                  {item.donationDate || "Today"}
-                                </span>
-                              </div>
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-white rounded-xl shadow-xs border border-slate-100 text-slate-400">
+                              <Inbox size={14} />
                             </div>
-
-                            <div className="flex items-start gap-2.5">
-                              <div className="p-1.5 bg-white rounded-lg shadow-xs border border-gray-100 text-gray-400">
-                                <Clock size={14} />
-                              </div>
-                              <div className="space-y-0.5">
-                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                                  Schedule
-                                </span>
-                                <span className="text-xs font-bold text-gray-700">
-                                  {item.donationTime || "N/A"}
-                                </span>
-                              </div>
+                            <div className="space-y-0.5">
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                                Email Address
+                              </span>
+                              <span className="text-xs font-semibold text-slate-600 line-clamp-1">
+                                {item.email || "No email available"}
+                              </span>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      <Link href={`/donation-requests/${item._id}`}>
-                        <div className="pt-5 mt-5 border-t border-gray-100 flex items-center justify-between gap-4">
-                          <button className="w-full bg-gray-900 group-hover:bg-red-500 text-white py-3.5 px-4 rounded-xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-gray-900/5 group-hover:shadow-red-500/20">
-                            <Eye
-                              size={16}
-                              className="group-hover:scale-110 transition-transform duration-300"
-                            />
-                            View Requirement
+                      <div className="pt-5 mt-5 border-t border-slate-100/80 grid grid-cols-2 gap-3">
+                        <a
+                          href={`mailto:${item.email || ""}`}
+                          className="w-full"
+                        >
+                          <button className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 px-4 rounded-xl font-bold text-xs transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer">
+                            <Inbox size={14} />
+                            <span>Send Email</span>
                           </button>
-                        </div>
-                      </Link>
+                        </a>
+
+                        <a href={`tel:${item.phone || "#"}`} className="w-full">
+                          <button className="w-full bg-linear-to-r from-red-500 to-rose-600 text-white py-3 px-4 rounded-xl font-bold text-xs transition-all duration-300 flex items-center justify-center gap-1.5 shadow-lg shadow-red-500/10 hover:shadow-red-500/20 hover:opacity-95 cursor-pointer">
+                            <span>Call Donor</span>
+                          </button>
+                        </a>
+                      </div>
                     </motion.div>
                   ))}
                 </div>
@@ -427,9 +452,9 @@ export default function SearchPage() {
                   <div className="flex justify-center pt-4">
                     <button
                       onClick={handleViewMore}
-                      className="inline-flex items-center gap-2 bg-white hover:bg-red-50 text-gray-800 hover:text-red-600 px-8 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 border border-gray-200 hover:border-red-200 cursor-pointer shadow-xs hover:shadow-md"
+                      className="inline-flex items-center gap-2 bg-white hover:bg-red-50 text-slate-800 hover:text-red-600 px-8 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 border border-slate-200 hover:border-red-200 cursor-pointer shadow-xs hover:shadow-md"
                     >
-                      View More Requests ({donors.length - visibleCount} left)
+                      View More Donors ({donors.length - visibleCount} left)
                       <ChevronDown size={16} className="animate-bounce" />
                     </button>
                   </div>
