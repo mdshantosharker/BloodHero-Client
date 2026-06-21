@@ -47,6 +47,7 @@ export default function AllUsersPage() {
 
         if (response && response.data) {
           setUsers(response.data);
+
           setTotalPages(response.totalPage || 1);
         } else {
           setUsers([]);
@@ -63,6 +64,7 @@ export default function AllUsersPage() {
 
   const handlePageChange = (newPage) => {
     if (newPage < 1 || newPage > totalPages) return;
+
     const params = new URLSearchParams(searchParams);
     params.set("page", newPage.toString());
     router.push(`${pathname}?${params.toString()}`);
@@ -134,11 +136,8 @@ export default function AllUsersPage() {
     );
   }
 
-  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
-
   return (
     <div className="space-y-6 pb-10 max-w-7xl mx-auto px-4 md:px-6">
-     
       <div className="bg-linear-to-r from-red-700 via-red-800 to-rose-900 rounded-3xl p-10 md:p-8 text-white shadow-xl relative overflow-hidden">
         <div className="absolute right-0 bottom-0 opacity-10 translate-x-6 translate-y-6 pointer-events-none">
           <Users size={200} />
@@ -225,7 +224,7 @@ export default function AllUsersPage() {
                       currentUserEmail && user.email === currentUserEmail;
                     const userId = user._id || user.id;
 
-                    const serialNumber = (page - 1) * 3 + (index + 1);
+                    const serialNumber = (page - 1) * 5 + (index + 1);
 
                     return (
                       <motion.tr
@@ -299,13 +298,11 @@ export default function AllUsersPage() {
                         <td className="p-4">
                           {user.status === "active" ? (
                             <span className="inline-flex gap-1.5 items-center bg-emerald-50 text-emerald-700 font-bold text-xs px-2.5 py-1 rounded-full border border-emerald-200">
-                              <CheckCircle size={14} />
-                              Active
+                              <CheckCircle size={14} /> Active
                             </span>
                           ) : (
                             <span className="inline-flex gap-1.5 items-center bg-red-50 text-red-600 font-bold text-xs px-2.5 py-1 rounded-full border border-red-200">
-                              <Ban size={14} />
-                              Blocked
+                              <Ban size={14} /> Blocked
                             </span>
                           )}
                         </td>
@@ -327,47 +324,34 @@ export default function AllUsersPage() {
           </table>
         </div>
 
-        {totalPages > 1 && (
-          <div className="p-5 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50/50">
-            <p className="text-xs font-semibold text-gray-500">
-              Showing page{" "}
-              <span className="text-gray-800 font-bold">{page}</span> of{" "}
-              <span className="text-gray-800 font-bold">{totalPages}</span>
-            </p>
+        <div className="p-5 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50/50">
+          <p className="text-xs font-semibold text-gray-500">
+            Showing page <span className="text-gray-800 font-bold">{page}</span>{" "}
+            of <span className="text-gray-800 font-bold">{totalPages}</span>
+          </p>
 
-            <div className="flex items-center gap-2 bg-white p-1 rounded-2xl border border-gray-100 shadow-2xs">
-              <button
-                onClick={() => handlePageChange(page - 1)}
-                disabled={page === 1}
-                className="w-9 h-9 flex items-center justify-center bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-xl border border-gray-200/60 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
-              >
-                <ChevronLeft size={16} />
-              </button>
+          <div className="flex items-center gap-2 bg-white p-1 rounded-2xl border border-gray-100 shadow-2xs">
+            <button
+              onClick={() => handlePageChange(page - 1)}
+              disabled={page === 1}
+              className="w-9 h-9 flex items-center justify-center bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-xl border border-gray-200/60 transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none disabled:cursor-not-allowed"
+            >
+              <ChevronLeft size={16} />
+            </button>
 
-              {pageNumbers.map((num) => (
-                <button
-                  key={num}
-                  onClick={() => handlePageChange(num)}
-                  className={`w-9 h-9 text-xs font-bold rounded-xl transition-all active:scale-95 ${
-                    page === num
-                      ? "bg-linear-to-r from-red-600 to-rose-500 text-white shadow-md shadow-red-500/20 font-extrabold"
-                      : "text-gray-600 hover:bg-gray-100 bg-transparent"
-                  }`}
-                >
-                  {num}
-                </button>
-              ))}
+            <span className="px-3 text-xs font-bold text-gray-700">
+              Page {page}
+            </span>
 
-              <button
-                onClick={() => handlePageChange(page + 1)}
-                disabled={page === totalPages}
-                className="w-9 h-9 flex items-center justify-center bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-xl border border-gray-200/60 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
-              >
-                <ChevronRight size={16} />
-              </button>
-            </div>
+            <button
+              onClick={() => handlePageChange(page + 1)}
+              disabled={page >= totalPages}
+              className="w-9 h-9 flex items-center justify-center bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-xl border border-gray-200/60 transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none disabled:cursor-not-allowed"
+            >
+              <ChevronRight size={16} />
+            </button>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
@@ -423,13 +407,11 @@ function ActionMenu({ user, changeStatus, makeRole, isSelf }) {
               >
                 {user.status === "active" ? (
                   <>
-                    <Ban size={16} />
-                    Block Account
+                    <Ban size={16} /> Block Account
                   </>
                 ) : (
                   <>
-                    <CheckCircle size={16} />
-                    Unblock Account
+                    <CheckCircle size={16} /> Unblock Account
                   </>
                 )}
               </button>
@@ -443,8 +425,7 @@ function ActionMenu({ user, changeStatus, makeRole, isSelf }) {
                 }}
                 className="w-full flex gap-3 items-center p-2.5 rounded-xl text-sm font-semibold transition-colors duration-150 text-gray-700 hover:bg-red-50 hover:text-red-600 cursor-pointer"
               >
-                <User size={16} />
-                Make Donor
+                <User size={16} /> Make Donor
               </button>
 
               <button
@@ -454,8 +435,7 @@ function ActionMenu({ user, changeStatus, makeRole, isSelf }) {
                 }}
                 className="w-full flex gap-3 items-center p-2.5 rounded-xl text-sm font-semibold transition-colors duration-150 text-gray-700 hover:bg-red-50 hover:text-red-600 cursor-pointer"
               >
-                <UserRound size={16} />
-                Make Volunteer
+                <UserRound size={16} /> Make Volunteer
               </button>
 
               <button
@@ -465,8 +445,7 @@ function ActionMenu({ user, changeStatus, makeRole, isSelf }) {
                 }}
                 className="w-full flex gap-3 items-center p-2.5 rounded-xl text-sm font-semibold transition-colors duration-150 text-gray-700 hover:bg-red-50 hover:text-red-600 cursor-pointer"
               >
-                <UserCog size={16} />
-                Make Admin
+                <UserCog size={16} /> Make Admin
               </button>
             </motion.div>
           </>

@@ -7,3 +7,7 @@ export const paymentsHistory = async (page) => {
   const res = await serverFetch(`/payments?page=${page}`);
   return res;
 };
+export const paymentsHistory2 = async () => {
+  const res = await serverFetch(`/payment`);
+  return res;
+};

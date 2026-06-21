@@ -13,7 +13,7 @@ import {
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { getAllUsers2, getDonations } from "@/lib/api/users/allUsers";
-import { paymentsHistory } from "@/lib/api/payments/history";
+import { paymentsHistory2 } from "@/lib/api/payments/history";
 
 export default async function AdminDashboard() {
   const session = await auth.api.getSession({
@@ -24,7 +24,7 @@ export default async function AdminDashboard() {
 
   const data = await getAllUsers2();
   const bloodData = await getDonations();
-  const res = await paymentsHistory();
+  const res = await paymentsHistory2();
   const totalDonationsAmount = res.reduce(
     (acc, item) => acc + (item.amount || 0),
     0,

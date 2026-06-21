@@ -31,6 +31,7 @@ export default function FundingPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalContributions, setTotalContributions] = useState(0);
 
   const { data: session } = useSession();
   const user = session?.user;
@@ -44,9 +45,11 @@ export default function FundingPage() {
         if (res && res.data) {
           setHistory(res.data);
           setTotalPages(res.totalPage || 1);
+          setTotalContributions(res.totalData || 0);
         } else {
           setHistory(Array.isArray(res) ? res : []);
           setTotalPages(1);
+          setTotalContributions(Array.isArray(res) ? res.length : 0);
         }
       } catch (err) {
         console.error("Failed to load history", err);
@@ -187,7 +190,7 @@ export default function FundingPage() {
                 Total Contributions
               </p>
               <h3 className="text-2xl font-bold text-gray-800">
-                {history.length} Times
+                {totalContributions} Times
               </h3>
             </div>
             <div className="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center">
@@ -254,7 +257,7 @@ export default function FundingPage() {
                   </tr>
                 ) : (
                   history.map((item, index) => {
-                    const serialNumber = (page - 1) * 3 + (index + 1);
+                    const serialNumber = (page - 1) * 5 + (index + 1);
 
                     return (
                       <tr
