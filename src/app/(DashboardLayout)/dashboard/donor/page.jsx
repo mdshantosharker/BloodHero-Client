@@ -78,7 +78,7 @@ export default function DashboardHomePage() {
 
   return (
     <div className="space-y-8">
-      <div className="bg-linear-to-r from-red-500 to-red-600 rounded-3xl p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="bg-linear-to-r from-red-800 to-red-700 rounded-3xl p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex gap-4 items-center">
           <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-2xl">
             🏠

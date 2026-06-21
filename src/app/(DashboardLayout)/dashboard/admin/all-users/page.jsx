@@ -139,7 +139,7 @@ export default function AllUsersPage() {
   return (
     <div className="space-y-6 pb-10 max-w-7xl mx-auto px-4 md:px-6">
      
-      <div className="bg-linear-to-r from-red-600 via-red-500 to-rose-500 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
+      <div className="bg-linear-to-r from-red-700 via-red-800 to-rose-900 rounded-3xl p-10 md:p-8 text-white shadow-xl relative overflow-hidden">
         <div className="absolute right-0 bottom-0 opacity-10 translate-x-6 translate-y-6 pointer-events-none">
           <Users size={200} />
         </div>

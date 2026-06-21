@@ -142,7 +142,7 @@ export default function CreateDonationRequest() {
   return (
     <div className="min-h-screen bg-slate-50/60 p-4 sm:p-6 lg:p-10 flex items-center justify-center">
       <div className="w-full bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
-        <div className="relative overflow-hidden bg-linear-to-br from-red-500 to-rose-600 p-6 sm:p-10 text-white">
+        <div className="relative overflow-hidden bg-linear-to-br from-red-800 to-rose-700 p-6 sm:p-10 text-white">
           <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
           <div className="flex flex-col sm:flex-row items-center gap-5 relative z-10">
             <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/10 shadow-inner">

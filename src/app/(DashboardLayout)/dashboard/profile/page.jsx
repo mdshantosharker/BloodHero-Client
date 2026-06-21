@@ -109,7 +109,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-slate-50/50 p-4 md:p-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-red-500 to-rose-600 p-6 text-white shadow-lg shadow-red-500/10 md:p-8">
+        <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-red-800 to-rose-600 p-6 text-white shadow-lg shadow-red-500/10 md:p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="flex flex-col items-center gap-5 sm:flex-row text-center sm:text-left">
               <div className="relative group">

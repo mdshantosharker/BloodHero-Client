@@ -12,3 +12,7 @@ export const getDonations = async () => {
   const res = await serverFetch("/donationRequests");
   return res;
 };
+export const getAllUsers2 = async () => {
+  const res = await serverFetch("/donor");
+  return res;
+};

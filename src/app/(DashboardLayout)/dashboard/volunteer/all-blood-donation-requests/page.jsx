@@ -83,7 +83,7 @@ export default function VolunteerBloodDonationRequestsPage() {
 
   return (
     <div className="space-y-8 relative pb-10">
-      <div className="bg-linear-to-r from-red-600 via-red-500 to-orange-500 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
+      <div className="bg-linear-to-r from-red-800 via-red-700 to-orange-700 rounded-3xl p-10 md:p-8 text-white shadow-xl relative overflow-hidden">
         <div className="absolute right-0 bottom-0 opacity-10 translate-x-10 translate-y-10 pointer-events-none">
           <HeartPulse size={250} />
         </div>
