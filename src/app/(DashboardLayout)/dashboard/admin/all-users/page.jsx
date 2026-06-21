@@ -17,9 +17,14 @@ import {
 import { useSession } from "@/lib/auth-client";
 import { getAllUsers } from "@/lib/api/users/allUsers";
 import { updateUserStatus } from "@/lib/api/users/action";
-import { toast } from "@heroui/react";
+import { Pagination, Table, toast } from "@heroui/react";
+import { useSearchParams } from "next/navigation";
 
 export default function AllUsersPage() {
+  const searchParams = useSearchParams();
+  const page = searchParams.get("page");
+  console.log(page);
+
   const { data: session } = useSession();
   const currentUserEmail = session?.user?.email;
 
@@ -30,7 +35,7 @@ export default function AllUsersPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const data = await getAllUsers();
+        const data = await getAllUsers(page);
         setUsers(data || []);
       } catch (error) {
         toast.error(error.message || "Failed to load users.");
@@ -42,6 +47,7 @@ export default function AllUsersPage() {
     fetchUsers();
   }, []);
 
+  console.log(users);
   const changeStatus = async (id) => {
     const targetUser = users.find((user) => (user._id || user.id) === id);
     if (!targetUser) return;
@@ -276,6 +282,41 @@ export default function AllUsersPage() {
                 })
               )}
             </tbody>
+            <Table.Footer>
+              <Pagination size="sm">
+               
+                <Pagination.Content>
+                  <Pagination.Item>
+                    <Pagination.Previous
+                      isDisabled={page === 1}
+                     
+                    >
+                      <Pagination.PreviousIcon />
+                      Prev
+                    </Pagination.Previous>
+                  </Pagination.Item>
+                  {pages.map((p) => (
+                    <Pagination.Item key={p}>
+                      <Pagination.Link
+                        isActive={p === page}
+                        
+                      >
+                        {p}
+                      </Pagination.Link>
+                    </Pagination.Item>
+                  ))}
+                  <Pagination.Item>
+                    <Pagination.Next
+                      isDisabled={page === totalPages}
+                     
+                    >
+                      Next
+                      <Pagination.NextIcon />
+                    </Pagination.Next>
+                  </Pagination.Item>
+                </Pagination.Content>
+              </Pagination>
+            </Table.Footer>
           </table>
         </div>
       </div>
