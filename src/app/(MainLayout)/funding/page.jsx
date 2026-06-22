@@ -17,6 +17,7 @@ import {
 import { useSession } from "@/lib/auth-client";
 import { paymentsHistory, paymentsHistory2 } from "@/lib/api/payments/history";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { createPayment } from "@/lib/api/payments/action";
 
 export default function FundingPage() {
   const searchParams = useSearchParams();
@@ -107,15 +108,49 @@ export default function FundingPage() {
       setError("Minimum donation amount is ৳100 BDT");
       return;
     }
+
+    if (!user) {
+      setError("Please log in to make a donation.");
+      return;
+    }
+
     try {
+      setLoading(true);
+      setError("");
       console.log("Processing payment...", amount);
+
+      const response = await fetch("/api/checkout_sessions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: amount,
+          email: ownerEmail,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setError("Could not initiate payment session.");
+      }
+
       setIsModalOpen(false);
       setAmount("");
     } catch (err) {
       console.error("Payment failed", err);
+      setError(err.message || "Payment initiation failed. Try again.");
+    } finally {
+      setLoading(false);
     }
   };
-
   const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   const fadeInVariants = {
