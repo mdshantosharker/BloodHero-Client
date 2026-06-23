@@ -14,9 +14,9 @@ BloodHero is a high-performance, full-stack blood donation ecosystem built using
 
 ## 🔗 Quick Links
 
-- 🌍 **Live Application:** [bloodhero-client.vercel.app](https://your-live-link.vercel.app)
-- 💻 **Client Repository:** [github.com/your-username/bloodhero-client](https://github.com/your-username/bloodhero-client)
-- 🧠 **Server Repository:** [github.com/your-username/bloodhero-server](https://github.com/your-username/bloodhero-server)
+- 🌍 **Live Application:** [bloodhero-client.vercel.app](https://blood-hero-client.vercel.app)
+- 💻 **Client Repository:** [github.com/your-username/bloodhero-client](https://github.com/mdshantosharker/BloodHero-Client)
+- 🧠 **Server Repository:** [github.com/your-username/bloodhero-server](https://github.com/mdshantosharker/BloodHero-Server)
 
 ---
 
