@@ -30,7 +30,6 @@ export default function MyDonationRequestsPage() {
   const router = useRouter();
   const pathname = usePathname();
 
- 
   const page = Number(searchParams.get("page")) || 1;
 
   const { data: session } = useSession();
@@ -40,7 +39,6 @@ export default function MyDonationRequestsPage() {
   const [requestList, setRequestList] = useState([]);
   const [loading, setLoading] = useState(true);
 
- 
   const [hasMoreData, setHasMoreData] = useState(true);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -106,7 +104,7 @@ export default function MyDonationRequestsPage() {
       success: () => {
         setIsDeleteModalOpen(false);
         setRequestToDelete(null);
-        router.refresh();
+        window.location.reload();
         return `Successfully deleted request for ${requestToDelete.recipientName}!`;
       },
       error: "Failed to delete request. Try again.",
@@ -126,7 +124,7 @@ export default function MyDonationRequestsPage() {
       success: () => {
         setIsCancelModalOpen(false);
         setRequestToCancel(null);
-        router.refresh();
+        window.location.reload();
         return `Successfully canceled request for ${requestToCancel.recipientName}!`;
       },
       error: "Failed to cancel request. Try again.",
@@ -137,7 +135,7 @@ export default function MyDonationRequestsPage() {
     try {
       await doneRequest({ status: "done" }, id);
       toast.success("Request successfully marked as Done! 🎉");
-
+      window.location.reload();
       setRequestList((prev) =>
         prev.map((item) =>
           item._id === id ? { ...item, status: "done" } : item,
@@ -165,7 +163,6 @@ export default function MyDonationRequestsPage() {
 
   return (
     <div className="space-y-8 relative pb-10 max-w-7xl mx-auto px-4 md:px-6">
-     
       <div className="bg-linear-to-r from-red-900 via-red-800 to-orange-700 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
         <div className="absolute right-0 bottom-0 opacity-10 translate-x-10 translate-y-10 pointer-events-none">
           <HeartPulse size={250} />
@@ -186,7 +183,6 @@ export default function MyDonationRequestsPage() {
         </div>
       </div>
 
-      
       <div className="bg-white rounded-3xl shadow-xs border p-4 flex flex-wrap gap-4 items-center justify-between">
         <div className="flex items-center gap-2.5 text-gray-800 font-bold px-1 text-sm md:text-base">
           <Filter className="text-red-500" size={18} />
@@ -210,7 +206,6 @@ export default function MyDonationRequestsPage() {
         </div>
       </div>
 
-     
       <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-237.5 w-full text-left border-collapse">
@@ -392,7 +387,6 @@ export default function MyDonationRequestsPage() {
           </table>
         </div>
 
-        
         <div className="p-5 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50/50">
           <p className="text-xs font-semibold text-gray-500">
             Current Page:{" "}
@@ -400,7 +394,6 @@ export default function MyDonationRequestsPage() {
           </p>
 
           <div className="flex items-center gap-2 bg-white p-1 rounded-2xl border border-gray-100 shadow-2xs">
-           
             <button
               onClick={() => handlePageChange(page - 1)}
               disabled={page === 1}
@@ -413,7 +406,6 @@ export default function MyDonationRequestsPage() {
               Page {page}
             </span>
 
-            
             <button
               onClick={() => handlePageChange(page + 1)}
               disabled={!hasMoreData}
@@ -425,7 +417,6 @@ export default function MyDonationRequestsPage() {
         </div>
       </div>
 
-     
       <AnimatePresence>
         {isDeleteModalOpen && requestToDelete && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
@@ -469,7 +460,6 @@ export default function MyDonationRequestsPage() {
         )}
       </AnimatePresence>
 
-      
       <AnimatePresence>
         {isCancelModalOpen && requestToCancel && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
