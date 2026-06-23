@@ -13,6 +13,7 @@ import {
   CheckCircle,
   XCircle,
   PlusCircle,
+  ArrowRight,
 } from "lucide-react";
 
 import { useSession } from "@/lib/auth-client";
@@ -327,6 +328,19 @@ export default function DashboardHomePage() {
                     </AnimatePresence>
                   </tbody>
                 </table>
+              </div>
+
+              <div className="p-4 bg-gray-50/50 border-t border-gray-100 flex justify-center sm:justify-end">
+                <Link
+                  href="/dashboard/my-donation-requests"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white hover:bg-gray-50 text-gray-700 hover:text-red-600 font-bold text-xs md:text-sm border shadow-2xs transition-all active:scale-95 group cursor-pointer"
+                >
+                  View My All Request
+                  <ArrowRight
+                    size={16}
+                    className="text-gray-400 group-hover:text-red-500 group-hover:translate-x-1 transition-transform"
+                  />
+                </Link>
               </div>
             </div>
           </div>
