@@ -79,6 +79,7 @@ export default function MyDonationRequestsPage() {
     fetchRequests();
   }, [user?.email, page]);
 
+  // console.log(getAllRequest);
   const handlePageChange = (newPage) => {
     if (newPage < 1) return;
     const params = new URLSearchParams(searchParams);
@@ -277,7 +278,10 @@ export default function MyDonationRequestsPage() {
                               className="text-red-400 shrink-0 mt-0.5"
                             />
                             <span className="truncate capitalize font-medium text-gray-700">
-                              {item?.address}
+                              {item.recipientUpazila
+                                ? `${item.recipientUpazila}, `
+                                : ""}
+                              {item.recipientDistrict || item.address}
                             </span>
                           </div>
                         </td>
